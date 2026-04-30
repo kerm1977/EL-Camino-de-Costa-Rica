@@ -2,26 +2,60 @@
 window.templates = window.templates || {};
 
 window.templates.home = `
-    <div class="module-fade-in pb-4">
-        <header class="top-bar d-flex justify-content-between align-items-center mb-3">
-            <button class="btn-circle"><i class="bi bi-list fs-5"></i></button>
-            <h5 class="mb-0 fw-bold">Home</h5>
-            <button class="btn-circle"><i class="bi bi-search fs-5"></i></button>
+    <div class="module-fade-in d-flex flex-column justify-content-center" style="min-height: 75vh;">
+        <!-- Header 100% limpio y minimalista -->
+        <header class="text-center mb-5">
+            <h3 class="fw-bold" style="color: var(--text-dark);">Inicio</h3>
         </header>
-        <div class="storage-card p-4 mb-4 d-flex align-items-center">
-            <div class="progress-circle me-3"><span>80%</span></div>
-            <div><h6 class="mb-1 fw-bold">Available Storage</h6><small class="opacity-75">130GB / 512GB</small></div>
+
+        <!-- Cuadrícula 2x2 con el diseño exacto de la imagen (Squircles grandes) -->
+        <div class="row text-center px-3 gy-5">
+            
+            <!-- Card 1: Tour Operadores -->
+            <div class="col-6">
+                <div style="cursor:pointer;" onclick="window.showSysAlert('info', 'Tour Operadores', 'Próximamente disponible.')">
+                    <div class="mx-auto shadow-sm d-flex align-items-center justify-content-center" 
+                         style="background-color: var(--cat-purple); width: 85px; height: 85px; border-radius: 1.8rem; color: white; font-size: 2.2rem;">
+                        <i class="bi bi-compass-fill"></i>
+                    </div>
+                    <span class="fw-bold d-block mt-3" style="font-size: 1rem; color: var(--text-dark); line-height: 1.2;">Tour<br>Operadores</span>
+                </div>
+            </div>
+            
+            <!-- Card 2: Emprendedores -->
+            <div class="col-6">
+                <div style="cursor:pointer;" onclick="window.showSysAlert('info', 'Emprendedores', 'Próximamente disponible.')">
+                    <div class="mx-auto shadow-sm d-flex align-items-center justify-content-center" 
+                         style="background-color: var(--cat-blue); width: 85px; height: 85px; border-radius: 1.8rem; color: white; font-size: 2.2rem;">
+                        <i class="bi bi-shop-window"></i>
+                    </div>
+                    <span class="fw-bold d-block mt-3" style="font-size: 1rem; color: var(--text-dark); line-height: 1.2;">Emprendedores</span>
+                </div>
+            </div>
+            
+            <!-- Card 3: Mapas -->
+            <div class="col-6">
+                <div style="cursor:pointer;" onclick="window.showSysAlert('info', 'Mapas', 'Próximamente disponible.')">
+                    <div class="mx-auto shadow-sm d-flex align-items-center justify-content-center" 
+                         style="background-color: var(--cat-orange); width: 85px; height: 85px; border-radius: 1.8rem; color: white; font-size: 2.2rem;">
+                        <i class="bi bi-map-fill"></i>
+                    </div>
+                    <span class="fw-bold d-block mt-3" style="font-size: 1rem; color: var(--text-dark); line-height: 1.2;">Mapas</span>
+                </div>
+            </div>
+            
+            <!-- Card 4: Otros -->
+            <div class="col-6">
+                <div style="cursor:pointer;" onclick="window.showSysAlert('info', 'Otros', 'Próximamente disponible.')">
+                    <div class="mx-auto shadow-sm d-flex align-items-center justify-content-center" 
+                         style="background-color: var(--cat-pink); width: 85px; height: 85px; border-radius: 1.8rem; color: white; font-size: 2.2rem;">
+                        <i class="bi bi-grid-fill"></i>
+                    </div>
+                    <span class="fw-bold d-block mt-3" style="font-size: 1rem; color: var(--text-dark); line-height: 1.2;">Otros</span>
+                </div>
+            </div>
+
         </div>
-        <div class="row text-center mb-4 g-2">
-            <div class="col-3"><div class="cat-icon-box" style="background-color: var(--cat-purple);"><i class="bi bi-grid-fill"></i></div><span class="cat-text">All</span></div>
-            <div class="col-3"><div class="cat-icon-box" style="background-color: var(--cat-blue);"><i class="bi bi-folder-fill"></i></div><span class="cat-text">Folder</span></div>
-            <div class="col-3"><div class="cat-icon-box" style="background-color: var(--cat-orange);"><i class="bi bi-file-earmark-text-fill"></i></div><span class="cat-text">File</span></div>
-            <div class="col-3"><div class="cat-icon-box" style="background-color: var(--cat-pink);"><i class="bi bi-person-fill"></i></div><span class="cat-text">People</span></div>
-        </div>
-        <div class="d-flex justify-content-between align-items-center mb-3 px-2">
-            <h6 class="fw-bold mb-0">Recent files</h6><a href="#" class="text-teal text-decoration-none small fw-bold">See all ></a>
-        </div>
-        <div class="file-item"><div class="file-icon" style="background-color: var(--cat-purple);"><i class="bi bi-play-fill"></i></div><div class="flex-grow-1"><h6 class="mb-0 fw-bold">Preview.mp4</h6><small class="text-muted fw-bold">8 MB</small></div><i class="bi bi-three-dots text-muted"></i></div>
     </div>
 `;
 
