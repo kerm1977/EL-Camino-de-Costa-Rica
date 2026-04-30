@@ -11,13 +11,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js"></script>
 
-    <!-- ========================================================= -->
-    <!-- EN TU SUBLIME TEXT: Descomenta la siguiente línea y elimina la etiqueta <style> -->
-    <!-- <link rel="stylesheet" href="css/estilos.css"> -->
-    <!-- ========================================================= -->
-    
     <style>
-    /* www/css/estilos.css */
+    /* Estilos Globales Integrados */
     @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
 
     :root {
@@ -25,13 +20,10 @@
         --text-dark: #1a202c; --text-muted: #a0aec0; --white: #ffffff;
         --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
         --cat-purple: #667eea; --cat-blue: #4299e1; --cat-orange: #ed8936; --cat-pink: #ed64a6;
-        
-        /* Variables para los inputs */
         --input-bg: #eef2f7;
-        --input-border: #8e9bb0; /* Color gris ratón */
+        --input-border: #8e9bb0; 
     }
 
-    /* Tema Oscuro Dinámico */
     body.dark-theme {
         --bg-color: #1a202c;
         --white: #2d3748;
@@ -50,14 +42,14 @@
 
     .text-teal { color: var(--teal-main) !important; }
     .bg-teal { background: var(--teal-main) !important; }
-    
+
     .btn-teal {
         background-color: var(--teal-main); color: white; border-radius: 1rem;
         padding: 0.8rem; font-weight: 700; border: none;
         box-shadow: 0 8px 15px rgba(56, 178, 172, 0.3); transition: all 0.3s ease;
     }
     .btn-teal:hover { background-color: #2c8c87; color: white; transform: translateY(-2px); }
-    
+
     .btn-circle {
         width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center;
         justify-content: center; background: var(--white); box-shadow: var(--card-shadow);
@@ -76,7 +68,7 @@
     }
     .custom-input:focus { background-color: var(--white); border-color: var(--teal-light); box-shadow: 0 0 0 4px rgba(56, 178, 172, 0.1); outline: none; }
     .custom-input::placeholder { color: var(--input-border); font-weight: 600; }
-    
+
     .input-group > .custom-input { border-top-right-radius: 0 !important; border-bottom-right-radius: 0 !important; border-right: none; }
     .input-group-text.custom-addon {
         background-color: var(--input-bg); border: 1px solid var(--input-border); border-left: none;
@@ -91,9 +83,7 @@
         background: var(--white); box-shadow: 0 -10px 30px rgba(0,0,0,0.05);
     }
     .nav-content { display: flex; justify-content: space-between; align-items: center; height: 80px; padding: 0 20px; }
-    
-    /* Configuración base de los íconos */
-    .nav-item { text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 20%; height: 100%; cursor: pointer; transition: all 0.3s ease; }
+    .nav-item { color: var(--text-muted); text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 20%; height: 100%; cursor: pointer; transition: all 0.3s ease; }
     .nav-item i { font-size: 1.5rem; transition: all 0.3s ease; }
     
     /* Colores únicos para cada ícono inferior que no se repiten */
@@ -102,17 +92,15 @@
     .nav-link[data-target="overview"] { color: var(--cat-orange); opacity: 0.5; }
     .nav-link[data-target="login"] { color: var(--cat-pink); opacity: 0.5; }
     
-    /* Efecto cuando están activos (Opacidad completa y tamaño) */
+    /* Efecto activo */
     .nav-link.active { opacity: 1; }
     .nav-item.active i { transform: scale(1.2); }
-    
+
     .nav-item.fab-container { position: relative; }
-    
-    /* Ajustado: Eliminamos el fondo para dejar solo la imagen centrada y más grande */
     .fab {
-        width: 70px; height: 70px; /* Tamaño aumentado para más legibilidad */
+        width: 70px; height: 70px;
         display: flex; align-items: center; justify-content: center;
-        transition: transform 0.2s ease; margin-top: -35px; /* Lo sube ligeramente */
+        transition: transform 0.2s ease; margin-top: -35px;
     }
     .fab:active { transform: scale(0.9); }
 
@@ -125,7 +113,7 @@
     .progress-circle { width: 70px; height: 70px; border-radius: 50%; background: conic-gradient(white 80%, rgba(255,255,255,0.3) 0); display: flex; align-items: center; justify-content: center; position: relative; }
     .progress-circle::after { content: ""; width: 54px; height: 54px; background: var(--teal-main); border-radius: 50%; position: absolute; }
     .progress-circle span { position: relative; z-index: 1; font-weight: 800; font-size: 0.9rem; }
-    
+
     .cat-icon-box { width: 60px; height: 60px; border-radius: 1.2rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; margin: 0 auto 0.5rem auto; box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
     .cat-text { font-size: 0.8rem; font-weight: 700; color: var(--text-dark); }
     .file-item { background: var(--white); border-radius: 1.2rem; padding: 1rem; margin-bottom: 0.8rem; display: flex; align-items: center; box-shadow: var(--card-shadow); }
@@ -146,29 +134,26 @@
 </head>
 <body>
 
-    <!-- Botón Global de Tema Oscuro superior derecho -->
-    <button onclick="window.toggleTheme()" class="btn-circle position-fixed" style="top: max(1rem, env(safe-area-inset-top)); right: 1rem; z-index: 1050; width: 40px; height: 40px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+    <!-- Botón Global de Tema Oscuro -->
+    <button onclick="window.toggleTheme()" class="btn-circle position-fixed" style="top: max(1rem, env(safe-area-inset-top)); right: 1rem; z-index: 1050; width: 40px; height: 40px;">
         <i class="bi bi-moon-fill" id="theme-icon"></i>
     </button>
 
-    <!-- Contenedor Maestro donde se inyectan las vistas de JS -->
+    <!-- Contenedor Maestro -->
     <main id="app-container" class="container py-2"></main>
 
-    <!-- Navegación Inferior (Mapeada a Hashes #) -->
+    <!-- Navegación Inferior -->
     <nav class="bottom-nav">
         <div class="nav-content">
             <a href="#home" class="nav-item nav-link" data-target="home"><i class="bi bi-house-door-fill"></i></a>
             <a href="#folder" class="nav-item nav-link" data-target="folder"><i class="bi bi-folder-fill"></i></a>
-            
             <a href="#" class="nav-item fab-container" onclick="window.handleAction(event)">
                 <div class="fab">
-                    <!-- Imagen limpia, grande y ajustada a su contenedor -->
                     <img src="img/logo.png" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
                 </div>
             </a>
-            
             <a href="#overview" class="nav-item nav-link" data-target="overview"><i class="bi bi-star-fill"></i></a>
-            <a href="#login" class="nav-item nav-link" data-target="login"><i class="bi bi-person-fill"></i></a>
+            <a href="#login" class="nav-item nav-link" data-target="login" id="profile-link"><i class="bi bi-person-fill"></i></a>
         </div>
     </nav>
 
@@ -207,186 +192,14 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- ========================================================= -->
-    <!-- EN TU SUBLIME TEXT: Descomenta esto y elimina los <script> individuales de abajo -->
-    <!-- 
-    <script src="js/login.js"></script>
-    <script src="js/registro.js"></script>
-    <script src="js/vistas.js"></script>
-    <script src="js/app.js"></script> 
-    -->
-    <!-- ========================================================= -->
-
     <script>
-    // js/login.js
+    // =========================================================================
+    // TODO EL JAVASCRIPT INTEGRADO (LOGIN, REGISTRO, VISTAS, APP)
+    // =========================================================================
+
     window.templates = window.templates || {};
-    window.templates.login = `
-        <div class="module-fade-in pb-5">
-            <header class="top-bar text-center mb-4 pt-4">
-                <img src="img/logo.png" alt="Logo" class="mx-auto d-block mb-3" style="width: 80px; height: 80px; object-fit: contain;">
-                <h4 class="fw-bold mb-1">Bienvenido</h4>
-                <p class="text-muted small">Inicia sesión para acceder a tu nube</p>
-            </header>
-            <form onsubmit="window.handleLogin(event)" class="px-2">
-                <div class="mb-3">
-                    <label class="form-label fw-bold small text-muted ms-1">Email</label>
-                    <input type="email" class="form-control custom-input" placeholder="tu@correo.com" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label fw-bold small text-muted ms-1">Contraseña</label>
-                    <div class="input-group">
-                        <input type="password" id="login-pass" class="form-control custom-input" placeholder="••••••••" required>
-                        <span class="input-group-text custom-addon" onclick="window.toggleLoginPassword('login-pass', 'login-eye')">
-                            <i class="bi bi-eye" id="login-eye"></i>
-                        </span>
-                    </div>
-                </div>
-                <div class="d-flex justify-content-between align-items-center mb-4 px-1">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="rememberMe">
-                        <label class="form-check-label small fw-bold text-muted" for="rememberMe">Recordar Contraseña</label>
-                    </div>
-                    <a href="#" class="text-teal text-decoration-none small fw-bold" data-bs-toggle="modal" data-bs-target="#recoveryModal">Olvidé Contraseña</a>
-                </div>
-                <button type="submit" class="btn btn-teal w-100 mb-4">Ingresar</button>
-                <div class="text-center">
-                    <span class="text-muted small fw-bold">¿No tienes cuenta?</span>
-                    <a href="#registro" class="text-teal text-decoration-none small fw-bold ms-1">Regístrate</a>
-                </div>
-            </form>
-        </div>
-    `;
 
-    window.toggleLoginPassword = function(inputId, iconId) {
-        const input = document.getElementById(inputId);
-        const icon = document.getElementById(iconId);
-        if (input.type === "password") {
-            input.type = "text"; icon.classList.replace('bi-eye', 'bi-eye-slash'); icon.classList.add('text-teal');
-        } else {
-            input.type = "password"; icon.classList.replace('bi-eye-slash', 'bi-eye'); icon.classList.remove('text-teal');
-        }
-    };
-
-    window.handleLogin = function(e) {
-        e.preventDefault();
-        window.showSysAlert('success', '¡Conectado!', 'Has iniciado sesión correctamente.');
-        setTimeout(() => {
-            const alertModal = document.getElementById('sysAlertModal');
-            if(alertModal) { const modalInstance = bootstrap.Modal.getInstance(alertModal); if(modalInstance) modalInstance.hide(); }
-            window.location.hash = 'home';
-        }, 1500);
-    };
-
-    window.processRecoveryFile = function() {
-        const fileInput = document.getElementById('jsonKeyFile');
-        if(!fileInput.files.length) return window.showSysAlert('warning', 'Atención', 'Selecciona tu archivo .json');
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const data = JSON.parse(e.target.result);
-                if(data.password_hash && data.pin_hash) {
-                    const modalInstance = bootstrap.Modal.getInstance(document.getElementById('recoveryModal'));
-                    if(modalInstance) modalInstance.hide();
-                    window.showSysAlert('success', 'Llave Validada', `Hola ${data.nombre}, hemos verificado tu llave.`);
-                } else throw new Error();
-            } catch(err) { window.showSysAlert('warning', 'Error', 'El archivo cargado no es válido o está corrupto.'); }
-        };
-        reader.readAsText(fileInput.files[0]);
-    };
-    </script>
-
-    <script>
-    // js/registro.js
-    window.templates = window.templates || {};
-    window.templates.registro = `
-        <div class="module-fade-in pb-5">
-            <header class="top-bar d-flex align-items-center mb-4">
-                <a href="#login" class="btn-circle me-3 text-decoration-none"><i class="bi bi-arrow-left fs-5"></i></a>
-                <h5 class="mb-0 fw-bold">Crear Cuenta</h5>
-            </header>
-            <form id="registerForm" onsubmit="window.handleRegister(event)" class="px-2">
-                <div class="row g-2 mb-3">
-                    <div class="col-12"><input type="text" id="reg-nombre" class="form-control custom-input" placeholder="Nombre" required></div>
-                    <div class="col-6"><input type="text" id="reg-ape1" class="form-control custom-input" placeholder="Primer Apellido" required></div>
-                    <div class="col-6"><input type="text" id="reg-ape2" class="form-control custom-input" placeholder="Segundo Apellido"></div>
-                </div>
-                <div class="mb-3"><input type="email" id="reg-email" class="form-control custom-input" placeholder="Email" required></div>
-                <div class="mb-3"><input type="tel" id="reg-tel" class="form-control custom-input" placeholder="Teléfono" required></div>
-                <div class="mb-3">
-                    <div class="input-group">
-                        <input type="password" id="reg-pass" class="form-control custom-input" placeholder="Contraseña" required>
-                        <span class="input-group-text custom-addon" onclick="window.toggleRegPassword('reg-pass', 'reg-eye-1')"><i class="bi bi-eye" id="reg-eye-1"></i></span>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <div class="input-group">
-                        <input type="password" id="reg-pass2" class="form-control custom-input" placeholder="Verificar Contraseña" required>
-                        <span class="input-group-text custom-addon" onclick="window.toggleRegPassword('reg-pass2', 'reg-eye-2')"><i class="bi bi-eye" id="reg-eye-2"></i></span>
-                    </div>
-                    <div id="pass-error" class="text-danger small fw-bold mt-1 d-none ms-1">Las contraseñas no coinciden</div>
-                </div>
-                <div class="mb-4">
-                    <label class="form-label fw-bold small text-muted ms-1">PIN de recuperación (6 dígitos)</label>
-                    <input type="text" id="reg-pin" class="form-control custom-input text-center fs-4 tracking-widest" placeholder="••••••" maxlength="6" pattern="[0-9]{6}" required oninput="this.value = this.value.replace(/[^0-9]/g, '');">
-                </div>
-                <button type="submit" class="btn btn-teal w-100 mb-4" id="btn-registrar">Registrar y Generar Llave</button>
-            </form>
-        </div>
-    `;
-
-    window.toggleRegPassword = function(inputId, iconId) {
-        const input = document.getElementById(inputId);
-        const icon = document.getElementById(iconId);
-        if (input.type === "password") {
-            input.type = "text"; icon.classList.replace('bi-eye', 'bi-eye-slash'); icon.classList.add('text-teal');
-        } else {
-            input.type = "password"; icon.classList.replace('bi-eye-slash', 'bi-eye'); icon.classList.remove('text-teal');
-        }
-    };
-
-    window.handleRegister = function(e) {
-        e.preventDefault();
-        const pass1 = document.getElementById('reg-pass').value;
-        const pass2 = document.getElementById('reg-pass2').value;
-        const errLabel = document.getElementById('pass-error');
-
-        if(pass1 !== pass2) { errLabel.classList.remove('d-none'); return; }
-        errLabel.classList.add('d-none');
-
-        const btn = document.getElementById('btn-registrar');
-        const originalText = btn.innerText;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...';
-        btn.disabled = true;
-
-        setTimeout(() => {
-            try {
-                const nombre = document.getElementById('reg-nombre').value;
-                const salt = dcodeIO.bcrypt.genSaltSync(10);
-                const userData = {
-                    nombre: nombre,
-                    email: document.getElementById('reg-email').value,
-                    password_hash: dcodeIO.bcrypt.hashSync(pass1, salt),
-                    pin_hash: dcodeIO.bcrypt.hashSync(document.getElementById('reg-pin').value, salt)
-                };
-
-                const blob = new Blob([JSON.stringify(userData, null, 2)], { type: "application/json" });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url; a.download = `myCloudKey_${nombre.toLowerCase()}.json`;
-                document.body.appendChild(a); a.click(); document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-
-                window.showSysAlert('warning', '¡Llave Generada!', 'Se ha descargado una llave a tu dispositivo. Guárdala en un lugar seguro.');
-                setTimeout(() => { window.location.hash = 'login'; }, 3500);
-            } catch (error) { window.showSysAlert('warning', 'Error', 'Hubo un problema generando la llave.');
-            } finally { btn.innerHTML = originalText; btn.disabled = false; }
-        }, 800);
-    };
-    </script>
-
-    <script>
-    // js/vistas.js
-    window.templates = window.templates || {};
+    // --- 1. PLANTILLAS DE VISTAS (HOME, FOLDER, OVERVIEW) ---
     window.templates.home = `
         <div class="module-fade-in pb-4">
             <header class="top-bar d-flex justify-content-between align-items-center mb-3">
@@ -442,10 +255,235 @@
             </div>
         </div>
     `;
-    </script>
 
-    <script>
-    // js/app.js
+    // --- 2. MÓDULO LOGIN (CON CONEXIÓN REAL AL BACKEND) ---
+    window.templates.login = `
+        <div class="module-fade-in pb-5">
+            <header class="top-bar text-center mb-4 pt-4">
+                <img src="img/logo.png" alt="Logo" class="mx-auto d-block mb-3" style="width: 80px; height: 80px; object-fit: contain;">
+                <h4 class="fw-bold mb-1">Bienvenido</h4>
+                <p class="text-muted small">Inicia sesión para acceder a tu nube</p>
+            </header>
+            <form onsubmit="window.handleLogin(event)" class="px-2">
+                <div class="mb-3">
+                    <label class="form-label fw-bold small text-muted ms-1">Email</label>
+                    <input type="email" id="login-email" class="form-control custom-input" placeholder="tu@correo.com" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold small text-muted ms-1">Contraseña</label>
+                    <div class="input-group">
+                        <input type="password" id="login-pass" class="form-control custom-input" placeholder="••••••••" required>
+                        <span class="input-group-text custom-addon" onclick="window.toggleLoginPassword('login-pass', 'login-eye')">
+                            <i class="bi bi-eye" id="login-eye"></i>
+                        </span>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-4 px-1">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="rememberMe">
+                        <label class="form-check-label small fw-bold text-muted" for="rememberMe">Recordar Contraseña</label>
+                    </div>
+                    <a href="#" class="text-teal text-decoration-none small fw-bold" data-bs-toggle="modal" data-bs-target="#recoveryModal">Olvidé Contraseña</a>
+                </div>
+                <button type="submit" id="btn-login" class="btn btn-teal w-100 mb-4">Ingresar</button>
+                <div class="text-center">
+                    <span class="text-muted small fw-bold">¿No tienes cuenta?</span>
+                    <a href="#registro" class="text-teal text-decoration-none small fw-bold ms-1">Regístrate</a>
+                </div>
+            </form>
+        </div>
+    `;
+
+    window.toggleLoginPassword = function(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        if (input.type === "password") {
+            input.type = "text"; icon.classList.replace('bi-eye', 'bi-eye-slash'); icon.classList.add('text-teal');
+        } else {
+            input.type = "password"; icon.classList.replace('bi-eye-slash', 'bi-eye'); icon.classList.remove('text-teal');
+        }
+    };
+
+    window.handleLogin = async function(e) {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value;
+        const pass = document.getElementById('login-pass').value;
+        const btn = document.getElementById('btn-login');
+        const originalText = btn.innerText;
+
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Validando...';
+        btn.disabled = true;
+
+        try {
+            // PETICIÓN REAL AL SERVIDOR LOCALHOST:3000
+            const response = await fetch('http://localhost:3000/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email, password: pass })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // LOGIN REAL EXITOSO
+                localStorage.setItem('isLoggedIn', 'true');
+                window.showSysAlert('success', '¡Conectado!', 'Has iniciado sesión correctamente.');
+                
+                setTimeout(() => {
+                    const alertModal = document.getElementById('sysAlertModal');
+                    if(alertModal) { const modalInstance = bootstrap.Modal.getInstance(alertModal); if(modalInstance) modalInstance.hide(); }
+                    window.location.hash = 'home';
+                }, 1500);
+            } else {
+                // FALLO REAL (CONTRASEÑA MALA, O NO EXISTE)
+                window.showSysAlert('warning', 'Acceso Denegado', data.message || 'Credenciales incorrectas.');
+            }
+        } catch (error) {
+            console.error("Error conectando al servidor:", error);
+            window.showSysAlert('warning', 'Error de red', 'No pudimos conectar con el servidor Node.js. Asegúrate de tenerlo ejecutándose.');
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    };
+
+    window.processRecoveryFile = function() {
+        const fileInput = document.getElementById('jsonKeyFile');
+        if(!fileInput.files.length) return window.showSysAlert('warning', 'Atención', 'Selecciona tu archivo .json');
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                if(data.password_hash && data.pin_hash) {
+                    const modalInstance = bootstrap.Modal.getInstance(document.getElementById('recoveryModal'));
+                    if(modalInstance) modalInstance.hide();
+                    window.showSysAlert('success', 'Llave Validada', `Hola ${data.nombre}, hemos verificado tu llave.`);
+                } else throw new Error();
+            } catch(err) { window.showSysAlert('warning', 'Error', 'El archivo cargado no es válido o está corrupto.'); }
+        };
+        reader.readAsText(fileInput.files[0]);
+    };
+
+    // --- 3. MÓDULO REGISTRO (CON CONEXIÓN REAL AL BACKEND) ---
+    window.templates.registro = `
+        <div class="module-fade-in pb-5">
+            <header class="top-bar d-flex align-items-center mb-4">
+                <a href="#login" class="btn-circle me-3 text-decoration-none"><i class="bi bi-arrow-left fs-5"></i></a>
+                <h5 class="mb-0 fw-bold">Crear Cuenta</h5>
+            </header>
+            <form id="registerForm" onsubmit="window.handleRegister(event)" class="px-2">
+                <div class="row g-2 mb-3">
+                    <div class="col-12"><input type="text" id="reg-nombre" class="form-control custom-input" placeholder="Nombre" required></div>
+                    <div class="col-6"><input type="text" id="reg-ape1" class="form-control custom-input" placeholder="Primer Apellido" required></div>
+                    <div class="col-6"><input type="text" id="reg-ape2" class="form-control custom-input" placeholder="Segundo Apellido"></div>
+                </div>
+                <div class="mb-3"><input type="email" id="reg-email" class="form-control custom-input" placeholder="Email" required></div>
+                <div class="mb-3"><input type="tel" id="reg-tel" class="form-control custom-input" placeholder="Teléfono" required></div>
+                <div class="mb-3">
+                    <div class="input-group">
+                        <input type="password" id="reg-pass" class="form-control custom-input" placeholder="Contraseña" required>
+                        <span class="input-group-text custom-addon" onclick="window.toggleRegPassword('reg-pass', 'reg-eye-1')"><i class="bi bi-eye" id="reg-eye-1"></i></span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="input-group">
+                        <input type="password" id="reg-pass2" class="form-control custom-input" placeholder="Verificar Contraseña" required>
+                        <span class="input-group-text custom-addon" onclick="window.toggleRegPassword('reg-pass2', 'reg-eye-2')"><i class="bi bi-eye" id="reg-eye-2"></i></span>
+                    </div>
+                    <div id="pass-error" class="text-danger small fw-bold mt-1 d-none ms-1">Las contraseñas no coinciden</div>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-bold small text-muted ms-1">PIN de recuperación (6 dígitos)</label>
+                    <input type="text" id="reg-pin" class="form-control custom-input text-center fs-4 tracking-widest" placeholder="••••••" maxlength="6" pattern="[0-9]{6}" required oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                </div>
+                <button type="submit" class="btn btn-teal w-100 mb-4" id="btn-registrar">Registrar y Generar Llave</button>
+            </form>
+        </div>
+    `;
+
+    window.toggleRegPassword = function(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        if (input.type === "password") {
+            input.type = "text"; icon.classList.replace('bi-eye', 'bi-eye-slash'); icon.classList.add('text-teal');
+        } else {
+            input.type = "password"; icon.classList.replace('bi-eye-slash', 'bi-eye'); icon.classList.remove('text-teal');
+        }
+    };
+
+    window.handleRegister = async function(e) {
+        e.preventDefault();
+        const pass1 = document.getElementById('reg-pass').value;
+        const pass2 = document.getElementById('reg-pass2').value;
+        const errLabel = document.getElementById('pass-error');
+
+        if(pass1 !== pass2) { errLabel.classList.remove('d-none'); return; }
+        errLabel.classList.add('d-none');
+
+        const btn = document.getElementById('btn-registrar');
+        const originalText = btn.innerText;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...';
+        btn.disabled = true;
+
+        try {
+            const nombre = document.getElementById('reg-nombre').value;
+            const ape1 = document.getElementById('reg-ape1').value;
+            const ape2 = document.getElementById('reg-ape2').value;
+            const email = document.getElementById('reg-email').value;
+            const tel = document.getElementById('reg-tel').value;
+            const pin = document.getElementById('reg-pin').value;
+
+            // PETICIÓN REAL AL SERVIDOR LOCALHOST:3000
+            const response = await fetch('http://localhost:3000/api/registro', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    nombre: nombre, 
+                    apellidos: `${ape1} ${ape2}`.trim(),
+                    email: email, 
+                    telefono: tel,
+                    password: pass1, 
+                    pin: pin
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // REGISTRO EXITOSO EN SQLITE, GENERAMOS LLAVE LOCAL
+                const salt = dcodeIO.bcrypt.genSaltSync(10);
+                const userDataKey = {
+                    nombre: nombre,
+                    email: email,
+                    password_hash: dcodeIO.bcrypt.hashSync(pass1, salt),
+                    pin_hash: dcodeIO.bcrypt.hashSync(pin, salt)
+                };
+
+                const blob = new Blob([JSON.stringify(userDataKey, null, 2)], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url; a.download = `myCloudKey_${nombre.toLowerCase()}.json`;
+                document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                localStorage.setItem('isLoggedIn', 'true');
+                window.showSysAlert('warning', '¡Cuenta Creada!', 'Se ha descargado una llave a tu dispositivo. Guárdala en un lugar seguro.');
+                
+                setTimeout(() => { window.location.hash = 'home'; }, 3500);
+            } else {
+                // FALLO EN EL REGISTRO (EJ. CORREO YA EXISTE)
+                window.showSysAlert('warning', 'Error de Registro', data.message || 'No se pudo crear la cuenta.');
+            }
+        } catch (error) {
+            console.error("Error conectando al servidor:", error);
+            window.showSysAlert('warning', 'Error de red', 'No pudimos conectar con el servidor. Verifica que esté en ejecución.');
+        } finally {
+            btn.innerHTML = originalText; 
+            btn.disabled = false; 
+        }
+    };
+
+    // --- 4. APP.JS (RUTEO GLOBAL Y ALERTAS) ---
     window.showSysAlert = function(type, title, message) {
         document.getElementById('sysAlertTitle').innerText = title;
         document.getElementById('sysAlertMsg').innerText = message;
@@ -462,11 +500,12 @@
     window.handleAction = function(e) {
         e.preventDefault();
         const fab = document.querySelector('.fab');
-        fab.style.transform = 'scale(0.8)';
-        setTimeout(() => fab.style.transform = '', 150);
+        if(fab) {
+            fab.style.transform = 'scale(0.8)';
+            setTimeout(() => fab.style.transform = '', 150);
+        }
     };
 
-    // --- NUEVO: Función para alternar Modo Oscuro ---
     window.toggleTheme = function() {
         const body = document.body;
         const themeIcon = document.getElementById('theme-icon');
@@ -480,28 +519,71 @@
             localStorage.setItem('theme', 'light');
         }
     };
-    // -------------------------------------------------
+
+    window.logout = function(e) {
+        if(e) e.preventDefault();
+        localStorage.removeItem('isLoggedIn');
+        window.location.hash = 'login';
+    };
 
     function route() {
         const viewId = window.location.hash.substring(1) || 'login';
         const container = document.getElementById('app-container');
+        const bottomNav = document.querySelector('.bottom-nav');
 
+        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+        // Guardias de ruta
+        if (isLoggedIn && (viewId === 'login' || viewId === 'registro')) {
+            window.location.hash = 'home';
+            return;
+        }
+
+        if (!isLoggedIn && viewId !== 'login' && viewId !== 'registro') {
+            window.location.hash = 'login';
+            return;
+        }
+
+        // Mostrar/ocultar barra de navegación
+        if (bottomNav) {
+            if (viewId === 'login' || viewId === 'registro') {
+                bottomNav.style.display = 'none';
+            } else {
+                bottomNav.style.display = 'block';
+            }
+        }
+
+        // Renderizar vista
         if(window.templates && window.templates[viewId]) {
             container.innerHTML = window.templates[viewId];
         } else {
             container.innerHTML = `<div class="text-center mt-5 pt-5"><h4>Error 404</h4><p>Vista no encontrada.</p></div>`;
         }
 
+        // Cambiar ícono de perfil a "Salir" cuando esté conectado
+        const profileNav = document.querySelector('.nav-link[data-target="login"]');
+        if (profileNav) {
+            if (isLoggedIn) {
+                profileNav.href = "#";
+                profileNav.onclick = window.logout;
+                profileNav.innerHTML = '<i class="bi bi-box-arrow-right"></i>';
+            } else {
+                profileNav.href = "#login";
+                profileNav.onclick = null;
+                profileNav.innerHTML = '<i class="bi bi-person-fill"></i>';
+            }
+        }
+
+        // Actualizar estados visuales de la barra inferior
         document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
-        const activeNav = document.querySelector(`.nav-link[data-target="${viewId === 'registro' ? 'login' : viewId}"]`);
+        const activeNav = document.querySelector(`.nav-link[data-target="${viewId}"]`);
         if(activeNav) activeNav.classList.add('active');
 
         window.scrollTo(0, 0);
     }
 
     window.addEventListener('hashchange', route);
-    
-    // --- MODIFICADO: Recuperar tema al cargar ---
+
     window.addEventListener('DOMContentLoaded', () => {
         if (localStorage.getItem('theme') === 'dark') {
             document.body.classList.add('dark-theme');
