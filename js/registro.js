@@ -1,9 +1,16 @@
 // ==========================================
-// MÓDULO: REGISTRO (Creación de cuenta y llaves)
+// MÓDULO: REGISTRO (Creación de cuenta y configuración inicial)
 // Archivo: js/registro.js
+// Depende de: js/afiliados.js
 // ==========================================
 
 window.templates = window.templates || {};
+
+// Funciones auxiliares para asegurar que existan al cargar
+window.toggleSection = window.toggleSection || function(elementId, show) {
+    const el = document.getElementById(elementId);
+    if(el) { show ? el.classList.remove('d-none') : el.classList.add('d-none'); }
+};
 
 // --- 1. PLANTILLA HTML ---
 window.templates.registro = `
@@ -13,6 +20,8 @@ window.templates.registro = `
             <h5 class="mb-0 fw-bold">Crear Cuenta</h5>
         </header>
         <form id="registerForm" onsubmit="window.handleRegister(event)" class="px-2 pb-4">
+            
+            <h6 class="fw-bold mb-3 text-teal"><i class="bi bi-person-lines-fill me-2"></i>Información Personal</h6>
             <div class="row g-2 mb-3">
                 <div class="col-12"><input type="text" id="reg-nombre" class="form-control custom-input" placeholder="Nombre" required></div>
                 <div class="col-6"><input type="text" id="reg-ape1" class="form-control custom-input" placeholder="Primer Apellido" required></div>
@@ -20,6 +29,20 @@ window.templates.registro = `
             </div>
             <div class="mb-3"><input type="email" id="reg-email" class="form-control custom-input" placeholder="Email" required></div>
             <div class="mb-3"><input type="tel" id="reg-tel" class="form-control custom-input" placeholder="Teléfono" required></div>
+
+            <hr class="my-4" style="border-color: var(--input-border); opacity: 0.3;">
+
+            <!-- SECCIÓN GRUPO IMPORTADA DE AFILIADOS.JS -->
+            ${window.generarSeccionGrupo ? window.generarSeccionGrupo('reg') : '<div class="alert alert-danger">Falta cargar afiliados.js</div>'}
+
+            <hr class="my-4" style="border-color: var(--input-border); opacity: 0.3;">
+
+            <!-- SECCIÓN EMPRENDIMIENTO IMPORTADA DE AFILIADOS.JS -->
+            ${window.generarSeccionEmprendimiento ? window.generarSeccionEmprendimiento('reg') : '<div class="alert alert-danger">Falta cargar afiliados.js</div>'}
+
+            <hr class="my-4" style="border-color: var(--input-border); opacity: 0.3;">
+
+            <h6 class="fw-bold mb-3 text-teal"><i class="bi bi-shield-lock-fill me-2"></i>Seguridad de la Cuenta</h6>
             <div class="mb-3">
                 <div class="input-group">
                     <input type="password" id="reg-pass" class="form-control custom-input" placeholder="Contraseña" required>
@@ -80,7 +103,7 @@ window.handleRegister = async function(e) {
         const tel = document.getElementById('reg-tel').value;
         const pin = document.getElementById('reg-pin').value;
 
-        // Petición al backend
+        // Petición simulada o real al backend
         const response = await fetch('http://localhost:3000/api/registro', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -97,7 +120,49 @@ window.handleRegister = async function(e) {
         const data = await response.json();
 
         if (response.ok) {
-            // Generación de Llave JSON
+            // Guardar configuración del Perfil Automáticamente (Mapeando reg- a perf-)
+            const profileData = {
+                'perf-nombre': `${nombre} ${ape1} ${ape2}`.trim(),
+                'perf-tel': tel,
+                
+                // Mapeo de datos del Grupo
+                'perf-switch-grupo': document.getElementById('reg-switch-grupo')?.checked || false,
+                'perf-g-op': document.getElementById('reg-g-op')?.value || '',
+                'perf-g-coord': document.getElementById('reg-g-coord')?.value || '',
+                'perf-g-prov': document.getElementById('reg-g-prov')?.value || '',
+                'perf-g-ext': document.getElementById('reg-g-ext')?.checked || false,
+                'perf-g-ind': document.getElementById('reg-g-ind')?.checked || false,
+                'perf-g-full': document.getElementById('reg-g-full')?.checked || false,
+                'perf-g-tellocal': document.getElementById('reg-g-tellocal')?.value || '',
+                'perf-g-celular': document.getElementById('reg-g-celular')?.value || '',
+                
+                // Mapeo de datos del Emprendimiento
+                'perf-switch-emp': document.getElementById('reg-switch-emp')?.checked || false,
+                'perf-emp-nombre': document.getElementById('reg-emp-nombre')?.value || '',
+                'perf-emp-cont': document.getElementById('reg-emp-cont')?.value || '',
+                'perf-emp-sello': document.getElementById('reg-emp-sello')?.checked || false,
+                'perf-emp-etapa': document.getElementById('reg-emp-etapa')?.value || '',
+                'perf-emp-tel': document.getElementById('reg-emp-tel')?.value || '',
+                'perf-emp-horario': document.getElementById('reg-emp-horario')?.value || '',
+                'perf-emp-tipo': document.getElementById('reg-emp-tipo')?.value || '',
+                'perf-emp-tipo-otro': document.getElementById('reg-emp-tipo-otro')?.value || ''
+            };
+
+            // Guardar los activadores de redes sociales
+            const redes = ['WhatsApp', 'Signal', 'Email', 'Facebook', 'Instagram', 'TikTok', 'Telegram', 'URL Waze', 'URL Google Maps'];
+            redes.forEach((red, i) => {
+                profileData[`perf-g-act-${i}`] = document.getElementById(`reg-g-act-${i}`)?.checked || false;
+                profileData[`perf-g-act-${i}-input`] = document.getElementById(`reg-g-act-${i}-input`)?.value || '';
+                
+                profileData[`perf-e-act-${i}`] = document.getElementById(`reg-e-act-${i}`)?.checked || false;
+                profileData[`perf-e-act-${i}-input`] = document.getElementById(`reg-e-act-${i}-input`)?.value || '';
+            });
+
+            localStorage.setItem('userProfileData', JSON.stringify(profileData));
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('userEmail', email); 
+
+            // Generación de Llave JSON de seguridad
             const salt = dcodeIO.bcrypt.genSaltSync(10);
             const userDataKey = {
                 nombre: nombre, 
@@ -113,9 +178,7 @@ window.handleRegister = async function(e) {
             document.body.appendChild(a); a.click(); document.body.removeChild(a);
             URL.revokeObjectURL(url);
 
-            localStorage.setItem('isLoggedIn', 'true');
-            localStorage.setItem('userEmail', email); 
-            window.showSysAlert('success', '¡Cuenta Creada!', 'Se ha descargado una llave a tu dispositivo. Guárdala en un lugar seguro.');
+            window.showSysAlert('success', '¡Cuenta Creada!', 'Tu cuenta y configuración inicial se han guardado. Se descargó tu llave.');
             
             setTimeout(() => { window.location.hash = 'home'; }, 3500);
         } else {
