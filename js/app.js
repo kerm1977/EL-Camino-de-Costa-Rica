@@ -1,17 +1,30 @@
-// js/app.js
+// ==========================================
+// MÓDULO: APP (Ruteo, UI Global, Alertas)
+// Archivo: js/app.js
+// ==========================================
+
+// 1. Alertas del Sistema Globales
 window.showSysAlert = function(type, title, message) {
-    document.getElementById('sysAlertTitle').innerText = title;
-    document.getElementById('sysAlertMsg').innerText = message;
+    const alertTitle = document.getElementById('sysAlertTitle');
+    const alertMsg = document.getElementById('sysAlertMsg');
+    const alertIcon = document.getElementById('sysAlertIcon');
+    const modalEl = document.getElementById('sysAlertModal');
+    
+    if(!alertTitle || !alertMsg || !alertIcon || !modalEl) return;
+
+    alertTitle.innerText = title;
+    alertMsg.innerText = message;
     
     let iconHtml = '';
     if(type === 'success') iconHtml = '<i class="bi bi-check-circle-fill text-success" style="font-size: 3rem;"></i>';
     else if (type === 'warning') iconHtml = '<i class="bi bi-exclamation-triangle-fill text-warning" style="font-size: 3rem;"></i>';
     else iconHtml = '<i class="bi bi-info-circle-fill text-info" style="font-size: 3rem;"></i>';
     
-    document.getElementById('sysAlertIcon').innerHTML = iconHtml;
-    new bootstrap.Modal(document.getElementById('sysAlertModal')).show();
+    alertIcon.innerHTML = iconHtml;
+    new bootstrap.Modal(modalEl).show();
 };
 
+// 2. Animación del Botón Flotante Central
 window.handleAction = function(e) {
     e.preventDefault();
     const fab = document.querySelector('.fab');
@@ -19,9 +32,10 @@ window.handleAction = function(e) {
         fab.style.transform = 'scale(0.8)';
         setTimeout(() => fab.style.transform = '', 150);
     }
+    // Aquí puedes agregar la acción real que desees que haga el logo central
 };
 
-// Función para alternar Modo Oscuro
+// 3. Tema Oscuro / Claro
 window.toggleTheme = function() {
     const body = document.body;
     const themeIcon = document.getElementById('theme-icon');
@@ -36,56 +50,70 @@ window.toggleTheme = function() {
     }
 };
 
-// --- NUEVO: Función para cerrar sesión ---
+// 4. Cerrar Sesión
 window.logout = function(e) {
     if(e) e.preventDefault();
-    localStorage.removeItem('isLoggedIn'); // Borramos la sesión
-    window.location.hash = 'login'; // Forzamos ir al login
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('userEmail'); 
+    window.location.hash = 'home';
+    route(); 
 };
 
+// 5. Motor de Ruteo (Navegación SPA)
 function route() {
-    const viewId = window.location.hash.substring(1) || 'login';
+    const viewId = window.location.hash.substring(1) || 'home';
     const container = document.getElementById('app-container');
     const bottomNav = document.querySelector('.bottom-nav');
+    const topProfileBtn = document.getElementById('top-profile-btn');
 
-    // 1. GUARDIAS DE RUTA (Verificamos si hay sesión)
+    if(!container) return;
+
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
 
-    // Si está conectado y quiere ir al login/registro -> Lo regresamos al Home
+    // Evitar que usuarios logueados vean login/registro
     if (isLoggedIn && (viewId === 'login' || viewId === 'registro')) {
         window.location.hash = 'home';
         return;
     }
 
-    // Si NO está conectado y quiere ver contenido privado -> Lo mandamos al Login
-    if (!isLoggedIn && viewId !== 'login' && viewId !== 'registro') {
-        window.location.hash = 'login';
-        return;
+    // Mostrar u ocultar barra inferior en pantallas de autenticación
+    if (bottomNav) {
+        if (viewId === 'login' || viewId === 'registro') bottomNav.style.display = 'none';
+        else bottomNav.style.display = 'block';
     }
 
-    // 2. OCULTAR BARRA INFERIOR EN LOGIN/REGISTRO
-    if (bottomNav) {
-        if (viewId === 'login' || viewId === 'registro') {
-            bottomNav.style.display = 'none'; // Desaparece la barra
+    // Mostrar botón superior de perfil si está logueado y no está en autenticación
+    if (topProfileBtn) {
+        if (isLoggedIn && viewId !== 'login' && viewId !== 'registro') {
+            topProfileBtn.style.display = 'flex';
         } else {
-            bottomNav.style.display = 'block'; // Aparece la barra
+            topProfileBtn.style.display = 'none';
         }
     }
 
-    // 3. RENDERIZAR LA VISTA
+    // Cargar Plantilla HTML desde window.templates
     if(window.templates && window.templates[viewId]) {
         container.innerHTML = window.templates[viewId];
+
+        // Hook especial para el perfil (Cargar datos al entrar)
+        if (viewId === 'perfil' && isLoggedIn) {
+            setTimeout(() => {
+                if(typeof window.loadProfileData === 'function') {
+                    window.loadProfileData();
+                }
+            }, 50);
+        }
     } else {
         container.innerHTML = `<div class="text-center mt-5 pt-5"><h4>Error 404</h4><p>Vista no encontrada.</p></div>`;
     }
 
-    // 4. CAMBIAR ÍCONO DE PERFIL POR "SALIR"
+    // Actualizar el botón de perfil/login en la barra de navegación inferior
     const profileNav = document.querySelector('.nav-link[data-target="login"]');
     if (profileNav) {
         if (isLoggedIn) {
             profileNav.href = "#";
             profileNav.onclick = window.logout;
-            profileNav.innerHTML = '<i class="bi bi-box-arrow-right"></i>'; // Ícono de salir
+            profileNav.innerHTML = '<i class="bi bi-box-arrow-right"></i>';
         } else {
             profileNav.href = "#login";
             profileNav.onclick = null;
@@ -93,7 +121,7 @@ function route() {
         }
     }
 
-    // 5. MARCAR ÍCONO ACTIVO
+    // Marcar pestaña activa en el menú
     document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
     const activeNav = document.querySelector(`.nav-link[data-target="${viewId}"]`);
     if(activeNav) activeNav.classList.add('active');
@@ -101,14 +129,15 @@ function route() {
     window.scrollTo(0, 0);
 }
 
+// 6. Inicialización de la App
 window.addEventListener('hashchange', route);
 
-// Recuperar tema al cargar y ejecutar ruteo inicial
 window.addEventListener('DOMContentLoaded', () => {
+    // Restaurar tema guardado
     if (localStorage.getItem('theme') === 'dark') {
         document.body.classList.add('dark-theme');
         const themeIcon = document.getElementById('theme-icon');
         if(themeIcon) themeIcon.classList.replace('bi-moon-fill', 'bi-sun-fill');
     }
-    route();
+    route(); // Arrancar la primera vista
 });

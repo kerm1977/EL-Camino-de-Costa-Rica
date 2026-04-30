@@ -1,0 +1,939 @@
+<!-- www/index.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Cloud App - Capacitor</title>
+
+    <!-- Dependencias Externas Seguras -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js"></script>
+
+    <style>
+    /* Estilos Globales Integrados */
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
+    :root {
+        --bg-color: #f4f7fc; --teal-main: #38b2ac; --teal-light: #4fd1c5;
+        --text-dark: #1a202c; --text-muted: #a0aec0; --white: #ffffff;
+        --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+        --cat-purple: #667eea; --cat-blue: #4299e1; --cat-orange: #ed8936; --cat-pink: #ed64a6;
+        --input-bg: #eef2f7;
+        --input-border: #8e9bb0; 
+    }
+
+    body.dark-theme {
+        --bg-color: #1a202c;
+        --white: #2d3748;
+        --text-dark: #f4f7fc;
+        --text-muted: #a0aec0;
+        --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        --input-bg: #1a202c;
+        --input-border: #4a5568;
+    }
+
+    body {
+        background-color: var(--bg-color); color: var(--text-dark);
+        font-family: 'Nunito', system-ui, sans-serif; min-height: 100vh;
+        margin: 0; padding-bottom: calc(90px + env(safe-area-inset-bottom)); overflow-x: hidden;
+    }
+
+    .text-teal { color: var(--teal-main) !important; }
+    .bg-teal { background: var(--teal-main) !important; }
+    
+    /* Colores Squircles */
+    .bg-cat-purple { background-color: var(--cat-purple) !important; }
+    .bg-cat-blue { background-color: var(--cat-blue) !important; }
+    .bg-cat-orange { background-color: var(--cat-orange) !important; }
+    .bg-cat-pink { background-color: var(--cat-pink) !important; }
+
+    .btn-teal {
+        background-color: var(--teal-main); color: white; border-radius: 1rem;
+        padding: 0.8rem; font-weight: 700; border: none;
+        box-shadow: 0 8px 15px rgba(56, 178, 172, 0.3); transition: all 0.3s ease;
+    }
+    .btn-teal:hover { background-color: #2c8c87; color: white; transform: translateY(-2px); }
+    .btn-danger-custom { background-color: #e53e3e; color: white; border-radius: 1rem; padding: 0.8rem; font-weight: 700; border: none; }
+    .btn-danger-custom:hover { background-color: #c53030; color: white; }
+
+    .btn-circle {
+        width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center;
+        justify-content: center; background: var(--white); box-shadow: var(--card-shadow);
+        border: none; color: var(--text-dark); transition: transform 0.2s;
+    }
+    .btn-circle:active { transform: scale(0.9); }
+
+    .top-bar {
+        position: sticky; top: 0; z-index: 1000; padding-top: max(1rem, env(safe-area-inset-top));
+        background: var(--bg-color); padding-bottom: 0.5rem;
+    }
+
+    .custom-input, .custom-select {
+        border-radius: 1rem !important; border: 1px solid var(--input-border); background-color: var(--input-bg);
+        padding: 0.8rem 1.2rem; font-weight: 600; color: var(--text-dark); transition: all 0.3s ease; width: 100%;
+    }
+    .custom-input:focus, .custom-select:focus { background-color: var(--white); border-color: var(--teal-light); box-shadow: 0 0 0 4px rgba(56, 178, 172, 0.1); outline: none; }
+    .custom-input::placeholder { color: var(--input-border); font-weight: 600; }
+
+    .input-group > .custom-input { border-top-right-radius: 0 !important; border-bottom-right-radius: 0 !important; border-right: none; }
+    .input-group-text.custom-addon {
+        background-color: var(--input-bg); border: 1px solid var(--input-border); border-left: none;
+        border-top-right-radius: 1rem !important; border-bottom-right-radius: 1rem !important;
+        color: var(--text-muted); cursor: pointer; transition: all 0.3s ease;
+    }
+    .input-group:focus-within .custom-addon { background-color: var(--white); border-color: var(--teal-light); border-left-color: transparent; }
+
+    .bottom-nav {
+        position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1030;
+        border-radius: 2rem 2rem 0 0; padding-bottom: env(safe-area-inset-bottom);
+        background: var(--white); box-shadow: 0 -10px 30px rgba(0,0,0,0.05);
+    }
+    .nav-content { display: flex; justify-content: space-between; align-items: center; height: 80px; padding: 0 20px; }
+    .nav-item { color: var(--text-muted); text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 20%; height: 100%; cursor: pointer; transition: all 0.3s ease; }
+    .nav-item i { font-size: 1.5rem; transition: all 0.3s ease; }
+    
+    .nav-link[data-target="home"] { color: var(--cat-purple); opacity: 0.5; }
+    .nav-link[data-target="folder"] { color: var(--cat-blue); opacity: 0.5; }
+    .nav-link[data-target="overview"] { color: var(--cat-orange); opacity: 0.5; }
+    .nav-link[data-target="login"] { color: var(--cat-pink); opacity: 0.5; }
+    
+    .nav-link.active { opacity: 1; }
+    .nav-item.active i { transform: scale(1.2); }
+
+    .nav-item.fab-container { position: relative; }
+    .fab {
+        width: 70px; height: 70px;
+        display: flex; align-items: center; justify-content: center;
+        transition: transform 0.2s ease; margin-top: -35px;
+    }
+    .fab:active { transform: scale(0.9); }
+
+    .storage-card {
+        background: linear-gradient(135deg, var(--teal-light), var(--teal-main));
+        border-radius: 1.5rem; color: white; box-shadow: 0 15px 25px rgba(56, 178, 172, 0.3);
+        position: relative; overflow: hidden;
+    }
+    .storage-card::before { content: ''; position: absolute; top: -50%; right: -20%; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%; }
+    .progress-circle { width: 70px; height: 70px; border-radius: 50%; background: conic-gradient(white 80%, rgba(255,255,255,0.3) 0); display: flex; align-items: center; justify-content: center; position: relative; }
+    .progress-circle::after { content: ""; width: 54px; height: 54px; background: var(--teal-main); border-radius: 50%; position: absolute; }
+    .progress-circle span { position: relative; z-index: 1; font-weight: 800; font-size: 0.9rem; }
+
+    .folder-card { background: var(--white); border-radius: 1.5rem; padding: 1.5rem; box-shadow: var(--card-shadow); text-align: left; transition: transform 0.2s; }
+    .folder-card:active { transform: scale(0.95); }
+
+    /* EL VERDADERO SQUIRCLE: Exacto a tu primera imagen */
+    .squircle {
+        width: 60px; 
+        height: 60px; 
+        border-radius: 18px; /* Curvatura perfecta tipo app */
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        color: white; 
+        font-size: 1.8rem; 
+        box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        flex-shrink: 0;
+    }
+
+    .modal-content { border-radius: 1.5rem; border: none; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+    .modal-header { border-bottom: 1px solid #eef2f7; }
+    .modal-footer { border-top: 1px solid #eef2f7; }
+
+    .card-perfil { background: var(--white); border-radius: 1.5rem; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--card-shadow); }
+    .form-switch .form-check-input { width: 3em; height: 1.5em; cursor: pointer; }
+    .form-switch .form-check-input:checked { background-color: var(--teal-main); border-color: var(--teal-main); }
+
+    .module-fade-in { animation: fadeInModule 0.3s ease forwards; }
+    @keyframes fadeInModule {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    </style>
+</head>
+<body>
+
+    <!-- Botones Globales Superiores -->
+    <button onclick="window.toggleTheme()" class="btn-circle position-fixed" style="top: max(1rem, env(safe-area-inset-top)); right: 1rem; z-index: 1050; width: 40px; height: 40px;">
+        <i class="bi bi-moon-fill" id="theme-icon"></i>
+    </button>
+    <!-- Botón de Perfil -->
+    <a href="#perfil" id="top-profile-btn" class="btn-circle position-fixed" style="top: max(1rem, env(safe-area-inset-top)); right: 4rem; z-index: 1050; width: 40px; height: 40px; text-decoration: none; display: none;">
+        <i class="bi bi-person-circle fs-5 text-teal"></i>
+    </a>
+
+    <!-- Contenedor Maestro -->
+    <main id="app-container" class="container py-2"></main>
+
+    <!-- Navegación Inferior -->
+    <nav class="bottom-nav">
+        <div class="nav-content">
+            <a href="#home" class="nav-item nav-link" data-target="home"><i class="bi bi-house-door-fill"></i></a>
+            <a href="#folder" class="nav-item nav-link" data-target="folder"><i class="bi bi-folder-fill"></i></a>
+            <a href="#" class="nav-item fab-container" onclick="window.handleAction(event)">
+                <div class="fab">
+                    <img src="img/logo.png" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
+                </div>
+            </a>
+            <a href="#overview" class="nav-item nav-link" data-target="overview"><i class="bi bi-star-fill"></i></a>
+            <!-- Enlace Perfil / Salir -->
+            <a href="#login" class="nav-item nav-link" data-target="login" id="profile-link"><i class="bi bi-person-fill"></i></a>
+        </div>
+    </nav>
+
+    <!-- Modales Globales -->
+    <div class="modal fade" id="recoveryModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-teal">Recuperar Cuenta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <i class="bi bi-key-fill fs-1 text-muted mb-2 d-block"></i>
+                    <p class="small text-muted fw-bold mb-3">Inserta el archivo JSON de tu llave.</p>
+                    <input class="form-control custom-input" type="file" id="jsonKeyFile" accept=".json">
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-teal w-100" onclick="window.processRecoveryFile()">Procesar Llave</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="sysAlertModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center p-4">
+                    <div id="sysAlertIcon" class="mb-3"></div>
+                    <h5 class="fw-bold mb-2" id="sysAlertTitle">Notificación</h5>
+                    <p class="text-muted small fw-bold" id="sysAlertMsg"></p>
+                    <button type="button" class="btn btn-teal w-100 mt-3" data-bs-dismiss="modal">Entendido</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Confirmación Perfil -->
+    <div class="modal fade" id="sysConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center p-4">
+                    <i class="bi bi-exclamation-octagon-fill text-danger mb-3 d-block" style="font-size: 3rem;"></i>
+                    <h5 class="fw-bold mb-2" id="sysConfirmTitle">Confirmación</h5>
+                    <p class="text-muted small fw-bold" id="sysConfirmMsg"></p>
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="button" class="btn btn-secondary w-50" data-bs-dismiss="modal" style="border-radius: 1rem;">Cancelar</button>
+                        <button type="button" class="btn btn-danger-custom w-50" onclick="window.executeConfirm()">Confirmar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+    // =========================================================================
+    // JAVASCRIPT INTEGRADO (VISTAS, LOGIN, REGISTRO, PERFIL, APP)
+    // =========================================================================
+
+    window.templates = window.templates || {};
+
+    // --- 1. VISTA HOME ---
+    window.templates.home = `
+        <div class="module-fade-in" style="padding-top: 90px;">
+            <header class="text-center mb-4">
+                <h3 class="fw-bold" style="color: var(--text-dark);">Inicio</h3>
+            </header>
+
+            <div class="row g-4 px-2">
+                
+                <!-- Card 1: Tour Operadores -->
+                <div class="col-6">
+                    <div class="folder-card h-100 d-flex flex-column align-items-center justify-content-center text-center py-4 px-2" style="cursor:pointer;" onclick="window.showSysAlert('info', 'Tour Operadores', 'Próximamente disponible.')">
+                        <!-- Squircle Morado con Senderista centrado -->
+                        <div class="squircle bg-cat-purple mb-3 mx-auto">
+                            <i class="bi bi-person-walking"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1 text-wrap" style="font-size: 0.95rem; line-height: 1.2;">Tour Operadores</h6>
+                            <small class="text-muted d-block" style="font-size: 0.8rem;">Próximamente</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Card 2: Emprendedores -->
+                <div class="col-6">
+                    <div class="folder-card h-100 d-flex flex-column align-items-center justify-content-center text-center py-4 px-2" style="cursor:pointer;" onclick="window.showSysAlert('info', 'Emprendedores', 'Próximamente disponible.')">
+                        <!-- Squircle Azul con Tiendita centrado -->
+                        <div class="squircle bg-cat-blue mb-3 mx-auto">
+                            <i class="bi bi-shop"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1 text-wrap" style="font-size: 0.95rem; line-height: 1.2;">Emprendedores</h6>
+                            <small class="text-muted d-block" style="font-size: 0.8rem;">Próximamente</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Card 3: Rutas -->
+                <div class="col-6">
+                    <div class="folder-card h-100 d-flex flex-column align-items-center justify-content-center text-center py-4 px-2" style="cursor:pointer;" onclick="window.showSysAlert('info', 'Rutas', 'Próximamente disponible.')">
+                        <!-- Squircle Naranja con Mapa centrado -->
+                        <div class="squircle bg-cat-orange mb-3 mx-auto">
+                            <i class="bi bi-map"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1 text-wrap" style="font-size: 0.95rem; line-height: 1.2;">Rutas (GPX, KMZ)</h6>
+                            <small class="text-muted d-block" style="font-size: 0.8rem;">Próximamente</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Card 4: Otros -->
+                <div class="col-6">
+                    <div class="folder-card h-100 d-flex flex-column align-items-center justify-content-center text-center py-4 px-2" style="cursor:pointer;" onclick="window.showSysAlert('info', 'Otros', 'Próximamente disponible.')">
+                        <!-- Squircle Rosa con Cuadritos centrado -->
+                        <div class="squircle bg-cat-pink mb-3 mx-auto">
+                            <i class="bi bi-grid-fill"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1 text-wrap" style="font-size: 0.95rem; line-height: 1.2;">Otros</h6>
+                            <small class="text-muted d-block" style="font-size: 0.8rem;">Próximamente</small>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    `;
+
+    // --- VISTAS FOLDER Y OVERVIEW ---
+    window.templates.folder = `
+        <div class="module-fade-in pb-4">
+            <header class="top-bar d-flex justify-content-between align-items-center mb-3">
+                <button class="btn-circle"><i class="bi bi-list fs-5"></i></button>
+                <h5 class="mb-0 fw-bold">Folder</h5>
+                <button class="btn-circle"><i class="bi bi-search fs-5"></i></button>
+            </header>
+            <div class="row g-3 px-2">
+                <div class="col-6"><div class="folder-card"><div class="d-flex justify-content-between align-items-start mb-2"><i class="bi bi-folder-fill"></i><i class="bi bi-three-dots text-muted"></i></div><h6 class="fw-bold mb-0">Supernatural</h6><small class="text-muted">80 files</small></div></div>
+                <div class="col-6"><div class="folder-card"><div class="d-flex justify-content-between align-items-start mb-2"><i class="bi bi-folder-fill"></i><i class="bi bi-three-dots text-muted"></i></div><h6 class="fw-bold mb-0 text-truncate">Naruto Shipp...</h6><small class="text-muted">500 files</small></div></div>
+            </div>
+        </div>
+    `;
+
+    window.templates.overview = `
+        <div class="module-fade-in pb-4">
+            <header class="top-bar d-flex justify-content-between align-items-center mb-3">
+                <a href="#home" class="btn-circle text-decoration-none"><i class="bi bi-arrow-left fs-5"></i></a>
+                <h5 class="mb-0 fw-bold">Overview</h5>
+                <button class="btn-circle"><i class="bi bi-three-dots fs-5"></i></button>
+            </header>
+            <div class="storage-card p-4 mb-4 text-center">
+                <h6 class="mb-4">Available Storage</h6>
+                <div class="progress-circle mx-auto mb-4" style="width: 120px; height: 120px;"><span style="font-size: 1.5rem;">80%</span></div>
+                <div class="d-flex justify-content-around">
+                    <div><div class="small opacity-75"><i class="bi bi-circle-fill me-1" style="font-size: 0.5rem; color: white;"></i>Total</div><div class="fw-bold">512 GB</div></div>
+                    <div><div class="small opacity-75"><i class="bi bi-circle-fill me-1" style="font-size: 0.5rem; color: rgba(255,255,255,0.5);"></i>Used</div><div class="fw-bold">130 GB</div></div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // --- 2. MÓDULO LOGIN ---
+    window.templates.login = `
+        <div class="module-fade-in pb-5">
+            <header class="top-bar position-relative text-center mb-4 pt-4">
+                <a href="#home" class="btn-circle position-absolute" style="left: 1rem; top: max(1rem, env(safe-area-inset-top)); text-decoration: none;">
+                    <i class="bi bi-arrow-left fs-5"></i>
+                </a>
+                <img src="img/logo.png" alt="Logo" class="mx-auto d-block mb-3" style="width: 80px; height: 80px; object-fit: contain;">
+                <h4 class="fw-bold mb-1">Bienvenido</h4>
+                <p class="text-muted small">Inicia sesión para acceder a tu perfil</p>
+            </header>
+            <form onsubmit="window.handleLogin(event)" class="px-2">
+                <div class="mb-3">
+                    <label class="form-label fw-bold small text-muted ms-1">Email</label>
+                    <input type="email" id="login-email" class="form-control custom-input" placeholder="tu@correo.com" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold small text-muted ms-1">Contraseña</label>
+                    <div class="input-group">
+                        <input type="password" id="login-pass" class="form-control custom-input" placeholder="••••••••" required>
+                        <span class="input-group-text custom-addon" onclick="window.toggleLoginPassword('login-pass', 'login-eye')">
+                            <i class="bi bi-eye" id="login-eye"></i>
+                        </span>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-4 px-1">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="rememberMe">
+                        <label class="form-check-label small fw-bold text-muted" for="rememberMe">Recordar Contraseña</label>
+                    </div>
+                    <a href="#" class="text-teal text-decoration-none small fw-bold" data-bs-toggle="modal" data-bs-target="#recoveryModal">Olvidé Contraseña</a>
+                </div>
+                <button type="submit" id="btn-login" class="btn btn-teal w-100 mb-4">Ingresar</button>
+                <div class="text-center">
+                    <span class="text-muted small fw-bold">¿No tienes cuenta?</span>
+                    <a href="#registro" class="text-teal text-decoration-none small fw-bold ms-1">Regístrate</a>
+                </div>
+            </form>
+        </div>
+    `;
+
+    window.toggleLoginPassword = function(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        if (input.type === "password") {
+            input.type = "text"; icon.classList.replace('bi-eye', 'bi-eye-slash'); icon.classList.add('text-teal');
+        } else {
+            input.type = "password"; icon.classList.replace('bi-eye-slash', 'bi-eye'); icon.classList.remove('text-teal');
+        }
+    };
+
+    window.handleLogin = async function(e) {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value;
+        const pass = document.getElementById('login-pass').value;
+        const btn = document.getElementById('btn-login');
+        const originalText = btn.innerText;
+
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Validando...';
+        btn.disabled = true;
+
+        try {
+            const response = await fetch('http://localhost:3000/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email, password: pass })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userEmail', email); 
+                window.showSysAlert('success', '¡Conectado!', 'Has iniciado sesión correctamente.');
+                
+                setTimeout(() => {
+                    const alertModal = document.getElementById('sysAlertModal');
+                    if(alertModal) { const modalInstance = bootstrap.Modal.getInstance(alertModal); if(modalInstance) modalInstance.hide(); }
+                    window.location.hash = 'home';
+                }, 1500);
+            } else {
+                window.showSysAlert('warning', 'Acceso Denegado', data.message || 'Credenciales incorrectas.');
+            }
+        } catch (error) {
+            console.error("Error conectando al servidor:", error);
+            window.showSysAlert('warning', 'Error de red', 'No pudimos conectar con el servidor Node.js. Asegúrate de tenerlo ejecutándose.');
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    };
+
+    window.processRecoveryFile = function() {
+        const fileInput = document.getElementById('jsonKeyFile');
+        if(!fileInput.files.length) return window.showSysAlert('warning', 'Atención', 'Selecciona tu archivo .json');
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                if(data.password_hash && data.pin_hash) {
+                    const modalInstance = bootstrap.Modal.getInstance(document.getElementById('recoveryModal'));
+                    if(modalInstance) modalInstance.hide();
+                    window.showSysAlert('success', 'Llave Validada', `Hola ${data.nombre}, hemos verificado tu llave.`);
+                } else throw new Error();
+            } catch(err) { window.showSysAlert('warning', 'Error', 'El archivo cargado no es válido o está corrupto.'); }
+        };
+        reader.readAsText(fileInput.files[0]);
+    };
+
+    // --- 3. MÓDULO REGISTRO ---
+    window.templates.registro = `
+        <div class="module-fade-in pb-5">
+            <header class="top-bar d-flex align-items-center mb-4">
+                <a href="#login" class="btn-circle me-3 text-decoration-none"><i class="bi bi-arrow-left fs-5"></i></a>
+                <h5 class="mb-0 fw-bold">Crear Cuenta</h5>
+            </header>
+            <form id="registerForm" onsubmit="window.handleRegister(event)" class="px-2">
+                <div class="row g-2 mb-3">
+                    <div class="col-12"><input type="text" id="reg-nombre" class="form-control custom-input" placeholder="Nombre" required></div>
+                    <div class="col-6"><input type="text" id="reg-ape1" class="form-control custom-input" placeholder="Primer Apellido" required></div>
+                    <div class="col-6"><input type="text" id="reg-ape2" class="form-control custom-input" placeholder="Segundo Apellido"></div>
+                </div>
+                <div class="mb-3"><input type="email" id="reg-email" class="form-control custom-input" placeholder="Email" required></div>
+                <div class="mb-3"><input type="tel" id="reg-tel" class="form-control custom-input" placeholder="Teléfono" required></div>
+                <div class="mb-3">
+                    <div class="input-group">
+                        <input type="password" id="reg-pass" class="form-control custom-input" placeholder="Contraseña" required>
+                        <span class="input-group-text custom-addon" onclick="window.toggleRegPassword('reg-pass', 'reg-eye-1')"><i class="bi bi-eye" id="reg-eye-1"></i></span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="input-group">
+                        <input type="password" id="reg-pass2" class="form-control custom-input" placeholder="Verificar Contraseña" required>
+                        <span class="input-group-text custom-addon" onclick="window.toggleRegPassword('reg-pass2', 'reg-eye-2')"><i class="bi bi-eye" id="reg-eye-2"></i></span>
+                    </div>
+                    <div id="pass-error" class="text-danger small fw-bold mt-1 d-none ms-1">Las contraseñas no coinciden</div>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-bold small text-muted ms-1">PIN de recuperación (6 dígitos)</label>
+                    <input type="text" id="reg-pin" class="form-control custom-input text-center fs-4 tracking-widest" placeholder="••••••" maxlength="6" pattern="[0-9]{6}" required oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                </div>
+                <button type="submit" class="btn btn-teal w-100 mb-4" id="btn-registrar">Registrar y Generar Llave</button>
+            </form>
+        </div>
+    `;
+
+    window.toggleRegPassword = function(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        if (input.type === "password") {
+            input.type = "text"; icon.classList.replace('bi-eye', 'bi-eye-slash'); icon.classList.add('text-teal');
+        } else {
+            input.type = "password"; icon.classList.replace('bi-eye-slash', 'bi-eye'); icon.classList.remove('text-teal');
+        }
+    };
+
+    window.handleRegister = async function(e) {
+        e.preventDefault();
+        const pass1 = document.getElementById('reg-pass').value;
+        const pass2 = document.getElementById('reg-pass2').value;
+        const errLabel = document.getElementById('pass-error');
+
+        if(pass1 !== pass2) { errLabel.classList.remove('d-none'); return; }
+        errLabel.classList.add('d-none');
+
+        const btn = document.getElementById('btn-registrar');
+        const originalText = btn.innerText;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...';
+        btn.disabled = true;
+
+        try {
+            const nombre = document.getElementById('reg-nombre').value;
+            const ape1 = document.getElementById('reg-ape1').value;
+            const ape2 = document.getElementById('reg-ape2').value;
+            const email = document.getElementById('reg-email').value;
+            const tel = document.getElementById('reg-tel').value;
+            const pin = document.getElementById('reg-pin').value;
+
+            const response = await fetch('http://localhost:3000/api/registro', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    nombre: nombre, 
+                    apellidos: `${ape1} ${ape2}`.trim(),
+                    email: email, 
+                    telefono: tel,
+                    password: pass1, 
+                    pin: pin
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                const salt = dcodeIO.bcrypt.genSaltSync(10);
+                const userDataKey = {
+                    nombre: nombre, email: email,
+                    password_hash: dcodeIO.bcrypt.hashSync(pass1, salt),
+                    pin_hash: dcodeIO.bcrypt.hashSync(pin, salt)
+                };
+
+                const blob = new Blob([JSON.stringify(userDataKey, null, 2)], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url; a.download = `myCloudKey_${nombre.toLowerCase()}.json`;
+                document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userEmail', email); 
+                window.showSysAlert('warning', '¡Cuenta Creada!', 'Se ha descargado una llave a tu dispositivo. Guárdala en un lugar seguro.');
+                
+                setTimeout(() => { window.location.hash = 'home'; }, 3500);
+            } else {
+                window.showSysAlert('warning', 'Error de Registro', data.message || 'No se pudo crear la cuenta.');
+            }
+        } catch (error) {
+            console.error("Error conectando al servidor:", error);
+            window.showSysAlert('warning', 'Error de red', 'No pudimos conectar con el servidor. Verifica que esté en ejecución.');
+        } finally {
+            btn.innerHTML = originalText; 
+            btn.disabled = false; 
+        }
+    };
+
+    // --- 4. MÓDULO PERFIL ---
+    window.generarActivadoresHTML = function(prefix) {
+        const redes = ['WhatsApp', 'Signal', 'Email', 'Facebook', 'Instagram', 'TikTok', 'Telegram', 'URL Waze', 'URL Google Maps'];
+        let html = '';
+        redes.forEach((red, i) => {
+            const id = `${prefix}-act-${i}`;
+            html += `
+            <div class="mb-2 p-2" style="background: var(--input-bg); border-radius: 1rem;">
+                <div class="form-check form-switch m-0 d-flex justify-content-between align-items-center">
+                    <label class="form-check-label small fw-bold m-0" for="${id}">${red}</label>
+                    <input class="form-check-input m-0" type="checkbox" id="${id}" onchange="window.toggleSection('${id}-input', this.checked)">
+                </div>
+                <input type="text" id="${id}-input" class="form-control custom-input mt-2 d-none" placeholder="Ingresa datos o URL de ${red}">
+            </div>`;
+        });
+        
+        html += `
+            <div class="d-flex gap-2 mt-3">
+                <button class="btn btn-sm btn-teal w-50" style="font-size: 0.7rem;"><i class="bi bi-whatsapp me-1"></i>Contactar WA Registrado</button>
+                <button class="btn btn-sm btn-teal w-50" style="font-size: 0.7rem;"><i class="bi bi-envelope-fill me-1"></i>Contactar por Email</button>
+            </div>
+        `;
+        return html;
+    };
+
+    window.toggleSection = function(elementId, show) {
+        const el = document.getElementById(elementId);
+        if(el) { show ? el.classList.remove('d-none') : el.classList.add('d-none'); }
+    };
+
+    window.checkOtroServicio = function(selectEl) {
+        const inputOtro = document.getElementById('emp-tipo-otro');
+        if(selectEl.value === 'Otros') { inputOtro.classList.remove('d-none'); } 
+        else { inputOtro.classList.add('d-none'); }
+    };
+
+    window.toggleValMethod = function() {
+        const isPin = document.getElementById('valPin').checked;
+        window.toggleSection('val-pin-section', isPin);
+        window.toggleSection('val-json-section', !isPin);
+    };
+
+    window.validarIdentidad = function() {
+        window.showSysAlert('success', 'Validación Correcta', 'Identidad confirmada. Ahora puedes cambiar tu contraseña.');
+        document.getElementById('new-password-section').classList.remove('d-none');
+    };
+
+    window.generarNuevaLlave = function() {
+        const p1 = document.getElementById('perf-new-pass1').value;
+        const p2 = document.getElementById('perf-new-pass2').value;
+        if(!p1 || p1 !== p2) return window.showSysAlert('warning', 'Error', 'Las nuevas contraseñas no coinciden o están vacías.');
+        
+        const blob = new Blob([JSON.stringify({msg: "Nueva llave simulada"}, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = `myCloudKey_actualizada.json`;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        window.showSysAlert('success', '¡Actualizado!', 'Contraseña cambiada y nueva llave descargada.');
+        document.getElementById('new-password-section').classList.add('d-none');
+        document.getElementById('perf-new-pass1').value = ''; document.getElementById('perf-new-pass2').value = '';
+    };
+
+    window.guardarPerfil = function() {
+        window.showSysAlert('success', 'Perfil Guardado', 'Toda tu información, grupos y emprendimientos se han sincronizado correctamente.');
+    };
+
+    window.confirmCallback = null;
+    window.showSysConfirm = function(title, message, callback) {
+        document.getElementById('sysConfirmTitle').innerText = title;
+        document.getElementById('sysConfirmMsg').innerText = message;
+        window.confirmCallback = callback;
+        new bootstrap.Modal(document.getElementById('sysConfirmModal')).show();
+    };
+
+    window.executeConfirm = function() {
+        const modalEl = document.getElementById('sysConfirmModal');
+        if(modalEl) {
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if(modal) modal.hide();
+        }
+        if(window.confirmCallback) setTimeout(() => window.confirmCallback(), 300);
+    };
+
+    window.iniciarBorrado = function() {
+        window.showSysConfirm('Advertencia 1/3', '¿Estás seguro de que deseas eliminar tu perfil? Esta acción no se puede deshacer.', () => {
+            window.showSysConfirm('Advertencia 2/3', '¿Completamente seguro? Se perderá absolutamente toda tu información, grupos, y emprendimientos.', () => {
+                window.showSysConfirm('Advertencia 3/3', 'ÚLTIMA ADVERTENCIA. ¿Eliminar permanentemente tu cuenta de la nube?', () => {
+                    localStorage.removeItem('isLoggedIn');
+                    localStorage.removeItem('userEmail');
+                    window.showSysAlert('success', 'Perfil Eliminado', 'Tu información ha sido borrada permanentemente del servidor.');
+                    setTimeout(() => { window.location.hash = 'home'; }, 2000);
+                });
+            });
+        });
+    };
+
+    window.templates.perfil = `
+        <div class="module-fade-in pb-5">
+            <header class="top-bar d-flex justify-content-between align-items-center mb-4">
+                <a href="#home" class="btn-circle text-decoration-none"><i class="bi bi-arrow-left fs-5"></i></a>
+                <h5 class="mb-0 fw-bold">Mi Perfil</h5>
+                <div style="width: 45px;"></div>
+            </header>
+
+            <!-- Información Personal MÁS Integración de Grupos y Emprendimientos -->
+            <div class="card-perfil" style="background: var(--white); border-radius: 1.5rem; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--card-shadow);">
+                <h6 class="fw-bold mb-3 text-teal"><i class="bi bi-person-lines-fill me-2"></i>Información Personal</h6>
+                <div class="mb-3"><label class="small text-muted fw-bold ms-1">Nombre Completo</label><input type="text" id="perf-nombre" class="form-control custom-input" placeholder="Nombre Apellidos"></div>
+                <div class="mb-3"><label class="small text-muted fw-bold ms-1">Correo Electrónico (Solo Lectura)</label><input type="email" id="perf-email" class="form-control custom-input" readonly></div>
+                <div class="mb-3"><label class="small text-muted fw-bold ms-1">Teléfono</label><input type="tel" id="perf-tel" class="form-control custom-input" placeholder="+506 8888 8888"></div>
+
+                <hr class="my-4" style="border-color: var(--input-border); opacity: 0.3;">
+
+                <!-- Anunciar Grupo (Dentro de Información Personal) -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold mb-0 text-teal"><i class="bi bi-people-fill me-2"></i>¿Deseas Anunciar tu Grupo?</h6>
+                    <div class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" id="switch-grupo" onchange="window.toggleSection('form-grupo', this.checked)"></div>
+                </div>
+                
+                <div id="form-grupo" class="d-none mt-3 mb-4">
+                    <input type="text" class="form-control custom-input mb-2" placeholder="Nombre del Operador">
+                    <input type="text" class="form-control custom-input mb-2" placeholder="Nombre del Coordinador o Encargado">
+                    
+                    <label class="small text-muted fw-bold ms-1 mt-2">Ubicación</label>
+                    <select class="form-select custom-input mb-2" style="appearance: none;">
+                        <option value="">Selecciona Provincia</option>
+                        <option value="San José">San José</option><option value="Alajuela">Alajuela</option><option value="Cartago">Cartago</option>
+                        <option value="Heredia">Heredia</option><option value="Guanacaste">Guanacaste</option><option value="Puntarenas">Puntarenas</option><option value="Limón">Limón</option>
+                    </select>
+
+                    <label class="small text-muted fw-bold ms-1 mt-2">Logotipos y Certificados</label>
+                    <input type="file" class="form-control custom-input mb-2" accept="image/*" title="Agrega tu Logo">
+                    <input type="file" class="form-control custom-input mb-2" accept="application/pdf,image/*" title="Agrega tu Certificado">
+
+                    <label class="small text-muted fw-bold ms-1 mt-2">Opciones de Servicio</label>
+                    <div class="d-flex gap-3 flex-wrap mb-2">
+                        <div class="form-check"><input class="form-check-input" type="checkbox" id="g-ext"><label class="form-check-label small fw-bold" for="g-ext">Atención a Extranjeros</label></div>
+                        <div class="form-check"><input class="form-check-input" type="checkbox" id="g-ind"><label class="form-check-label small fw-bold" for="g-ind">Atención Individual</label></div>
+                        <div class="form-check"><input class="form-check-input" type="checkbox" id="g-full"><label class="form-check-label small fw-bold" for="g-full">Servicio Completo</label></div>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-6"><input type="tel" class="form-control custom-input" placeholder="Teléfono Local"></div>
+                        <div class="col-6"><input type="tel" class="form-control custom-input" placeholder="Celular"></div>
+                    </div>
+
+                    <h6 class="fw-bold text-muted mt-3 mb-2 small">Comunicación (Activadores)</h6>
+                    ${window.generarActivadoresHTML('g')}
+                </div>
+
+                <hr class="my-4" style="border-color: var(--input-border); opacity: 0.3;">
+
+                <!-- Anunciar Emprendimiento (Dentro de Información Personal) -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold mb-0 text-teal"><i class="bi bi-shop me-2"></i>¿Deseas Anunciar Tu Emprendimiento?</h6>
+                    <div class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" id="switch-emp" onchange="window.toggleSection('form-emp', this.checked)"></div>
+                </div>
+                
+                <div id="form-emp" class="d-none mt-3 mb-2">
+                    <input type="text" class="form-control custom-input mb-2" placeholder="Nombre del Emprendimiento">
+                    <input type="text" class="form-control custom-input mb-2" placeholder="Nombre del Contacto">
+                    
+                    <label class="small text-muted fw-bold ms-1 mt-2">Imagen del Comercio</label>
+                    <input type="file" class="form-control custom-input mb-2" accept="image/*">
+                    
+                    <div class="form-check form-switch mb-2 mt-3">
+                        <input class="form-check-input" type="checkbox" id="emp-sello-switch" onchange="window.toggleSection('emp-sello-input', this.checked)">
+                        <label class="form-check-label small fw-bold" for="emp-sello-switch">¿Tienes Sello?</label>
+                    </div>
+                    <input type="file" id="emp-sello-input" class="form-control custom-input mb-2 d-none" accept="image/*" title="Imagen del Sello">
+
+                    <input type="text" class="form-control custom-input mb-2 mt-2" placeholder="Etapa">
+                    <input type="tel" class="form-control custom-input mb-2" placeholder="Teléfono (+506...)">
+                    <input type="text" class="form-control custom-input mb-2" placeholder="Horario (Ej. L-V 8am - 5pm)">
+
+                    <label class="small text-muted fw-bold ms-1 mt-2">Tipo de Servicio</label>
+                    <select class="form-select custom-input mb-2" onchange="window.checkOtroServicio(this)" style="appearance: none;">
+                        <option value="Restaurante">Restaurante</option><option value="Soda">Soda</option><option value="Pulpería">Pulpería</option>
+                        <option value="Hostal">Hostal</option><option value="Estadía">Estadía</option><option value="Hotel">Hotel</option>
+                        <option value="Casa Hospedaje">Casa Hospedaje</option><option value="Apicultura">Apicultura</option>
+                        <option value="Transporte Terrestre">Transporte Terrestre</option><option value="Transporte Acuatico">Transporte Acuatico</option>
+                        <option value="Acarreo">Acarreo</option><option value="Guía Local">Guía Local</option><option value="Asociación">Asociación</option>
+                        <option value="Museo">Museo</option><option value="Zona de Camping">Zona de Camping</option>
+                        <option value="Otros">Otros</option>
+                    </select>
+                    <input type="text" id="emp-tipo-otro" class="form-control custom-input mb-2 d-none" placeholder="Especificar otro servicio">
+
+                    <h6 class="fw-bold text-muted mt-3 mb-2 small">Comunicación (Activadores)</h6>
+                    ${window.generarActivadoresHTML('e')}
+                </div>
+            </div>
+
+            <button class="btn btn-teal w-100 mb-4 py-3 fs-5" onclick="window.guardarPerfil()"><i class="bi bi-save2-fill me-2"></i>Guardar Perfil Completo</button>
+
+            <!-- Cambiar Contraseña (Movido Arriba de Zona de Peligro) -->
+            <div class="card-perfil" style="background: var(--white); border-radius: 1.5rem; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--card-shadow);">
+                <h6 class="fw-bold mb-3 text-teal"><i class="bi bi-shield-lock-fill me-2"></i>Cambiar Contraseña</h6>
+                <p class="small text-muted mb-3">Para cambiar tu contraseña, primero valida tu identidad usando tu PIN o subiendo tu Llave JSON.</p>
+                
+                <div class="d-flex gap-3 mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="valMethod" id="valPin" checked onchange="window.toggleValMethod()">
+                        <label class="form-check-label small fw-bold" for="valPin">Usar PIN y Clave</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="valMethod" id="valJson" onchange="window.toggleValMethod()">
+                        <label class="form-check-label small fw-bold" for="valJson">Usar Llave JSON</label>
+                    </div>
+                </div>
+
+                <div id="val-pin-section">
+                    <input type="password" id="perf-val-pass" class="form-control custom-input mb-2" placeholder="Contraseña Actual">
+                    <input type="text" id="perf-val-pin" class="form-control custom-input mb-3 text-center tracking-widest" placeholder="PIN de 6 dígitos" maxlength="6">
+                </div>
+                <div id="val-json-section" class="d-none">
+                    <input type="file" id="perf-val-file" class="form-control custom-input mb-3" accept=".json">
+                </div>
+
+                <button class="btn btn-teal w-100 mb-3" onclick="window.validarIdentidad()">Validar Identidad</button>
+
+                <!-- Inputs de Nueva Contraseña -->
+                <div id="new-password-section" class="d-none p-3 mt-3" style="background-color: var(--bg-color); border-radius: 1rem; border: 1px solid var(--teal-light);">
+                    <h6 class="fw-bold mb-3 text-success"><i class="bi bi-check-circle-fill me-2"></i>Identidad Validada</h6>
+                    <div class="input-group mb-2">
+                        <input type="password" id="perf-new-pass1" class="form-control custom-input" placeholder="Nueva Contraseña">
+                        <span class="input-group-text custom-addon" onclick="window.toggleLoginPassword('perf-new-pass1', 'perf-eye-n1')"><i class="bi bi-eye" id="perf-eye-n1"></i></span>
+                    </div>
+                    <div class="input-group mb-3">
+                        <input type="password" id="perf-new-pass2" class="form-control custom-input" placeholder="Verificar Nueva Contraseña">
+                        <span class="input-group-text custom-addon" onclick="window.toggleLoginPassword('perf-new-pass2', 'perf-eye-n2')"><i class="bi bi-eye" id="perf-eye-n2"></i></span>
+                    </div>
+                    <button class="btn btn-teal w-100" onclick="window.generarNuevaLlave()">Actualizar y Generar Nueva Llave</button>
+                </div>
+            </div>
+
+            <!-- Zona de Peligro -->
+            <div class="card-perfil" style="border: 2px solid #fc8181; background-color: #fff5f5; border-radius: 1.5rem; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--card-shadow);">
+                <h6 class="fw-bold mb-2 text-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>Zona de Peligro</h6>
+                <p class="small text-muted mb-3">Si eliminas tu perfil, perderás acceso a tu nube, grupos y emprendimientos. Esta acción no se puede revertir.</p>
+                <button class="btn btn-danger-custom w-100" onclick="window.iniciarBorrado()" style="background-color: #e53e3e; color: white; border-radius: 1rem; padding: 0.8rem; font-weight: 700; border: none;"><i class="bi bi-trash3-fill me-2"></i>Eliminar Perfil</button>
+            </div>
+        </div>
+    `;
+
+    // --- 5. APP.JS (RUTEO GLOBAL Y ALERTAS) ---
+    window.showSysAlert = function(type, title, message) {
+        document.getElementById('sysAlertTitle').innerText = title;
+        document.getElementById('sysAlertMsg').innerText = message;
+        
+        let iconHtml = '';
+        if(type === 'success') iconHtml = '<i class="bi bi-check-circle-fill text-success" style="font-size: 3rem;"></i>';
+        else if (type === 'warning') iconHtml = '<i class="bi bi-exclamation-triangle-fill text-warning" style="font-size: 3rem;"></i>';
+        else iconHtml = '<i class="bi bi-info-circle-fill text-info" style="font-size: 3rem;"></i>';
+        
+        document.getElementById('sysAlertIcon').innerHTML = iconHtml;
+        new bootstrap.Modal(document.getElementById('sysAlertModal')).show();
+    };
+
+    window.handleAction = function(e) {
+        e.preventDefault();
+        const fab = document.querySelector('.fab');
+        if(fab) {
+            fab.style.transform = 'scale(0.8)';
+            setTimeout(() => fab.style.transform = '', 150);
+        }
+    };
+
+    window.toggleTheme = function() {
+        const body = document.body;
+        const themeIcon = document.getElementById('theme-icon');
+        body.classList.toggle('dark-theme');
+        
+        if (body.classList.contains('dark-theme')) {
+            if(themeIcon) themeIcon.classList.replace('bi-moon-fill', 'bi-sun-fill');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            if(themeIcon) themeIcon.classList.replace('bi-sun-fill', 'bi-moon-fill');
+            localStorage.setItem('theme', 'light');
+        }
+    };
+
+    window.logout = function(e) {
+        if(e) e.preventDefault();
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('userEmail'); 
+        window.location.hash = 'home';
+        route(); 
+    };
+
+    function route() {
+        const viewId = window.location.hash.substring(1) || 'home';
+        const container = document.getElementById('app-container');
+        const bottomNav = document.querySelector('.bottom-nav');
+        const topProfileBtn = document.getElementById('top-profile-btn');
+
+        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+        // Guardias
+        if (isLoggedIn && (viewId === 'login' || viewId === 'registro')) {
+            window.location.hash = 'home';
+            return;
+        }
+
+        // Mostrar/ocultar nav
+        if (bottomNav) {
+            if (viewId === 'login' || viewId === 'registro') bottomNav.style.display = 'none';
+            else bottomNav.style.display = 'block';
+        }
+
+        // Botón superior de perfil
+        if (topProfileBtn) {
+            if (isLoggedIn && viewId !== 'login' && viewId !== 'registro') {
+                topProfileBtn.style.display = 'flex';
+            } else {
+                topProfileBtn.style.display = 'none';
+            }
+        }
+
+        // Cargar Plantilla
+        if(window.templates && window.templates[viewId]) {
+            container.innerHTML = window.templates[viewId];
+
+            if (viewId === 'perfil' && isLoggedIn) {
+                setTimeout(() => {
+                    const emailInput = document.getElementById('perf-email');
+                    if(emailInput) emailInput.value = localStorage.getItem('userEmail') || 'usuario@nube.com';
+                }, 100);
+            }
+        } else {
+            container.innerHTML = `<div class="text-center mt-5 pt-5"><h4>Error 404</h4><p>Vista no encontrada.</p></div>`;
+        }
+
+        // Actualizar botón de perfil inferior
+        const profileNav = document.querySelector('.nav-link[data-target="login"]');
+        if (profileNav) {
+            if (isLoggedIn) {
+                profileNav.href = "#";
+                profileNav.onclick = window.logout;
+                profileNav.innerHTML = '<i class="bi bi-box-arrow-right"></i>';
+            } else {
+                profileNav.href = "#login";
+                profileNav.onclick = null;
+                profileNav.innerHTML = '<i class="bi bi-person-fill"></i>';
+            }
+        }
+
+        // Visual
+        document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+        const activeNav = document.querySelector(`.nav-link[data-target="${viewId}"]`);
+        if(activeNav) activeNav.classList.add('active');
+
+        window.scrollTo(0, 0);
+    }
+
+    window.addEventListener('hashchange', route);
+
+    window.addEventListener('DOMContentLoaded', () => {
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-theme');
+            const themeIcon = document.getElementById('theme-icon');
+            if(themeIcon) themeIcon.classList.replace('bi-moon-fill', 'bi-sun-fill');
+        }
+        route();
+    });
+    </script>
+</body>
+</html>
