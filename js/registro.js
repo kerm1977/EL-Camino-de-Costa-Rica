@@ -12,6 +12,16 @@ window.toggleSection = window.toggleSection || function(elementId, show) {
     if(el) { show ? el.classList.remove('d-none') : el.classList.add('d-none'); }
 };
 
+// Función local para parsear imágenes en el registro
+window.regGetBase64 = function(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+};
+
 // --- 1. PLANTILLA HTML ---
 window.templates.registro = `
     <div class="module-fade-in pb-5">
@@ -92,7 +102,7 @@ window.handleRegister = async function(e) {
 
     const btn = document.getElementById('btn-registrar');
     const originalText = btn.innerText;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...';
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creando Nube...';
     btn.disabled = true;
 
     try {
@@ -103,7 +113,7 @@ window.handleRegister = async function(e) {
         const tel = document.getElementById('reg-tel').value;
         const pin = document.getElementById('reg-pin').value;
 
-        // Petición simulada o real al backend
+        // 1. Petición para crear el usuario en SQLite
         const response = await fetch('http://localhost:3000/api/registro', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -120,12 +130,14 @@ window.handleRegister = async function(e) {
         const data = await response.json();
 
         if (response.ok) {
-            // Guardar configuración del Perfil Automáticamente (Mapeando reg- a perf-)
+            // 2. Mapear toda la información extendida hacia el Perfil
             const profileData = {
-                'perf-nombre': `${nombre} ${ape1} ${ape2}`.trim(),
+                'perf-nombre': nombre,
+                'perf-ape1': ape1,
+                'perf-ape2': ape2,
                 'perf-tel': tel,
                 
-                // Mapeo de datos del Grupo
+                // Mapeo Grupo
                 'perf-switch-grupo': document.getElementById('reg-switch-grupo')?.checked || false,
                 'perf-g-op': document.getElementById('reg-g-op')?.value || '',
                 'perf-g-coord': document.getElementById('reg-g-coord')?.value || '',
@@ -135,30 +147,59 @@ window.handleRegister = async function(e) {
                 'perf-g-full': document.getElementById('reg-g-full')?.checked || false,
                 'perf-g-tellocal': document.getElementById('reg-g-tellocal')?.value || '',
                 'perf-g-celular': document.getElementById('reg-g-celular')?.value || '',
+                'perf-g-nota': document.getElementById('reg-g-nota')?.innerHTML || '', // Rich Text
                 
-                // Mapeo de datos del Emprendimiento
+                // Mapeo Emprendimiento
                 'perf-switch-emp': document.getElementById('reg-switch-emp')?.checked || false,
                 'perf-emp-nombre': document.getElementById('reg-emp-nombre')?.value || '',
                 'perf-emp-cont': document.getElementById('reg-emp-cont')?.value || '',
                 'perf-emp-sello': document.getElementById('reg-emp-sello')?.checked || false,
+                'perf-emp-ext': document.getElementById('reg-emp-ext')?.checked || false,
                 'perf-emp-etapa': document.getElementById('reg-emp-etapa')?.value || '',
                 'perf-emp-tel': document.getElementById('reg-emp-tel')?.value || '',
                 'perf-emp-horario': document.getElementById('reg-emp-horario')?.value || '',
                 'perf-emp-tipo': document.getElementById('reg-emp-tipo')?.value || '',
-                'perf-emp-tipo-otro': document.getElementById('reg-emp-tipo-otro')?.value || ''
+                'perf-emp-tipo-otro': document.getElementById('reg-emp-tipo-otro')?.value || '',
+                'perf-emp-nota': document.getElementById('reg-emp-nota')?.innerHTML || '' // Rich Text
             };
 
-            // Guardar los activadores de redes sociales
+            // Mapeo Activadores (Redes sociales)
             const redes = ['WhatsApp', 'Signal', 'Email', 'Facebook', 'Instagram', 'TikTok', 'Telegram', 'URL Waze', 'URL Google Maps'];
             redes.forEach((red, i) => {
                 profileData[`perf-g-act-${i}`] = document.getElementById(`reg-g-act-${i}`)?.checked || false;
                 profileData[`perf-g-act-${i}-input`] = document.getElementById(`reg-g-act-${i}-input`)?.value || '';
-                
                 profileData[`perf-e-act-${i}`] = document.getElementById(`reg-e-act-${i}`)?.checked || false;
                 profileData[`perf-e-act-${i}-input`] = document.getElementById(`reg-e-act-${i}-input`)?.value || '';
             });
 
-            localStorage.setItem('userProfileData', JSON.stringify(profileData));
+            // Mapeo Idiomas Soportados
+            const idiomasList = ['es', 'en', 'de', 'it', 'fr', 'pt', 'zh'];
+            idiomasList.forEach(lang => {
+                profileData[`perf-g-lang-${lang}`] = document.getElementById(`reg-g-lang-${lang}`)?.checked || false;
+                profileData[`perf-emp-lang-${lang}`] = document.getElementById(`reg-emp-lang-${lang}`)?.checked || false;
+            });
+
+            // Procesamiento de Imágenes (Convertir a Base64 antes de guardar en SQLite)
+            const fileGLogo = document.getElementById('reg-g-logo')?.files[0];
+            if(fileGLogo) profileData['perf-g-logo'] = await window.regGetBase64(fileGLogo);
+
+            const fileGCert = document.getElementById('reg-g-cert')?.files[0];
+            if(fileGCert) profileData['perf-g-cert'] = await window.regGetBase64(fileGCert);
+
+            const fileEmpImg = document.getElementById('reg-emp-img')?.files[0];
+            if(fileEmpImg) profileData['perf-emp-img'] = await window.regGetBase64(fileEmpImg);
+
+            const fileEmpSello = document.getElementById('reg-emp-sello-input')?.files[0];
+            if(fileEmpSello) profileData['perf-emp-sello-input'] = await window.regGetBase64(fileEmpSello);
+
+            // 3. ENVIAR TODO EL PERFIL AL BACKEND DE INMEDIATO
+            await fetch('http://localhost:3000/api/perfil', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email, profileData: profileData })
+            });
+
+            // Guardar inicio de sesión
             localStorage.setItem('isLoggedIn', 'true');
             localStorage.setItem('userEmail', email); 
 
@@ -178,15 +219,21 @@ window.handleRegister = async function(e) {
             document.body.appendChild(a); a.click(); document.body.removeChild(a);
             URL.revokeObjectURL(url);
 
-            window.showSysAlert('success', '¡Cuenta Creada!', 'Tu cuenta y configuración inicial se han guardado. Se descargó tu llave.');
+            if(typeof window.showSysAlert === 'function') {
+                window.showSysAlert('success', '¡Cuenta Creada!', 'Se ha guardado tu cuenta y tu perfil en la base de datos. Se descargó tu llave.');
+            }
             
             setTimeout(() => { window.location.hash = 'home'; }, 3500);
         } else {
-            window.showSysAlert('warning', 'Error de Registro', data.message || 'No se pudo crear la cuenta.');
+            if(typeof window.showSysAlert === 'function') {
+                window.showSysAlert('warning', 'Error de Registro', data.message || 'No se pudo crear la cuenta.');
+            }
         }
     } catch (error) {
         console.error("Error conectando al servidor:", error);
-        window.showSysAlert('warning', 'Error de red', 'No pudimos conectar con el servidor Node.js. Verifica que esté en ejecución.');
+        if(typeof window.showSysAlert === 'function') {
+            window.showSysAlert('warning', 'Error de red', 'No pudimos conectar con el servidor Node.js. Verifica que esté en ejecución.');
+        }
     } finally {
         btn.innerHTML = originalText; 
         btn.disabled = false; 
