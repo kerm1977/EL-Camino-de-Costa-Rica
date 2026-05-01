@@ -1,544 +1,16 @@
 // ==========================================
-// MÓDULO: PERFIL (Vista Tarjeta, Edición, Persistencia, WA y Temas)
+// MÓDULO: PERFIL (Vista Principal y Plantilla)
 // Archivo: js/perfil.js
+// Responsabilidad: Plantilla HTML y Renderizado de la Tarjeta
 // ==========================================
 
 window.templates = window.templates || {};
-window.currentProfileData = {};
-
-// --- GESTIÓN DE INDEXEDDB (OFFLINE CACHE) ---
-window.idbCache = {
-    dbPromise: null,
-    init() {
-        this.dbPromise = new Promise((resolve, reject) => {
-            const request = indexedDB.open('CloudAppDB', 1);
-            request.onupgradeneeded = (e) => {
-                e.target.result.createObjectStore('profiles', { keyPath: 'email' });
-            };
-            request.onsuccess = (e) => resolve(e.target.result);
-            request.onerror = (e) => reject(e.target.error);
-        });
-    },
-    async set(email, data) {
-        if (!this.dbPromise) this.init();
-        try {
-            const db = await this.dbPromise;
-            const tx = db.transaction('profiles', 'readwrite');
-            tx.objectStore('profiles').put({ email, data });
-            return new Promise((resolve) => {
-                tx.oncomplete = () => resolve(true);
-                tx.onerror = () => resolve(false);
-            });
-        } catch (e) { console.error("IDB Set Error", e); return false; }
-    },
-    async get(email) {
-        if (!this.dbPromise) this.init();
-        try {
-            const db = await this.dbPromise;
-            return new Promise((resolve) => {
-                const tx = db.transaction('profiles', 'readonly');
-                const req = tx.objectStore('profiles').get(email);
-                req.onsuccess = () => resolve(req.result ? req.result.data : null);
-                req.onerror = () => resolve(null);
-            });
-        } catch (e) { console.error("IDB Get Error", e); return null; }
-    }
-};
-
-// --- GESTIÓN DE TEMA (PERMANENTE EN BASE DE DATOS) ---
-window.themeColors = [
-    { name: 'Teal (Original)', main: '#38b2ac', light: '#4fd1c5' },
-    { name: 'Índigo Suave', main: '#667eea', light: '#7f9cf5' },
-    { name: 'Azul Acero', main: '#4299e1', light: '#63b3ed' },
-    { name: 'Verde Salvia', main: '#48bb78', light: '#68d391' },
-    { name: 'Coral Suave', main: '#f56565', light: '#fc8181' },
-    { name: 'Ocaso', main: '#ed8936', light: '#f6ad55' },
-    { name: 'Lavanda', main: '#9f7aea', light: '#b794f4' },
-    { name: 'Rosa Vintage', main: '#ed64a6', light: '#f687b3' },
-    { name: 'Pizarra', main: '#a0aec0', light: '#cbd5e0' },
-    { name: 'Moca Claro', main: '#b7791f', light: '#d69e2e' }
-];
-
-window.selectedTheme = { main: '#38b2ac', light: '#4fd1c5' };
-
-window.selectProfileTheme = function(main, light) {
-    window.selectedTheme = { main, light };
-    
-    document.querySelectorAll('.theme-btn').forEach(btn => {
-        if(btn.dataset.main === main) {
-            btn.style.border = '3px solid var(--text-dark)';
-            btn.style.transform = 'scale(1.1)';
-        } else {
-            btn.style.border = '2px solid white';
-            btn.style.transform = 'scale(1)';
-        }
-    });
-
-    document.documentElement.style.setProperty('--teal-main', main);
-    document.documentElement.style.setProperty('--teal-light', light);
-};
-
-const renderColorPalette = () => {
-    let html = '';
-    window.themeColors.forEach((color) => {
-        html += `<button type="button" class="theme-btn btn-circle shadow-sm m-1" data-main="${color.main}" style="width: 35px; height: 35px; background-color: ${color.main}; border: 2px solid white; transition: all 0.2s;" onclick="window.selectProfileTheme('${color.main}', '${color.light}')" title="${color.name}"></button>`;
-    });
-    const styleId = 'theme-contrast-fix';
-    if(!document.getElementById(styleId)) {
-        const style = document.createElement('style');
-        style.id = styleId;
-        style.innerHTML = `.btn-teal { color: white !important; } .text-teal { font-weight: bold; }`;
-        document.head.appendChild(style);
-    }
-    return html;
-};
-
-// --- GESTIÓN DE BOTÓN WHATSAPP ---
-window.renderWhatsAppButton = function() {
-    const data = window.currentProfileData || {};
-    let phone = null;
-    
-    if(data['perf-switch-grupo']) {
-        phone = data['perf-g-celular'] || data['perf-g-tellocal'];
-    } else if(data['perf-switch-emp']) {
-        phone = data['perf-emp-tel'];
-    }
-    
-    const existingBtn = document.getElementById('floating-wa-btn');
-    if(existingBtn) existingBtn.remove();
-    
-    if(phone && phone.trim() !== '') {
-        let cleanPhone = phone.replace(/\D/g, '');
-        if(!cleanPhone.startsWith('506') && cleanPhone.length === 8) cleanPhone = '506' + cleanPhone;
-        
-        const btn = document.createElement('a');
-        btn.id = 'floating-wa-btn';
-        btn.href = `https://wa.me/${cleanPhone}`;
-        btn.target = '_blank';
-        btn.innerHTML = '<i class="bi bi-whatsapp"></i>';
-        btn.className = 'btn-circle shadow-lg d-flex align-items-center justify-content-center module-fade-in';
-        btn.style.cssText = 'position: fixed; bottom: 95px; right: 15px; width: 55px; height: 55px; background-color: #25D366; color: white !important; font-size: 2rem; z-index: 1040; text-decoration: none;';
-        document.body.appendChild(btn);
-    }
-};
-
-// --- VISOR DE CERTIFICADOS INCRUSTADO ---
-window.toggleEmbeddedCert = function() {
-    const certContainer = document.getElementById('embedded-cert-container');
-    const certBtn = document.getElementById('btn-toggle-cert');
-    if(certContainer && certBtn) {
-        if(certContainer.classList.contains('d-none')) {
-            certContainer.classList.remove('d-none');
-            certBtn.innerHTML = 'Ocultar Certificado';
-        } else {
-            certContainer.classList.add('d-none');
-            certBtn.innerHTML = 'Mostrar Certificado';
-        }
-    }
-};
-
-// --- COMPRESOR DE IMÁGENES Y LÍMITE DE TAMAÑO (500KB) ---
-window.getBase64 = function(file) {
-    return new Promise((resolve, reject) => {
-        if (file.size > 512000) {
-            return reject(new Error(`El archivo "${file.name}" supera los 500KB máximos permitidos.\n\nPara mantener el rendimiento de la aplicación, comprime tu imagen o PDF. Te recomendamos usar un convertidor gratuito como "JPG to WEBP" ingresando a:\n\nhttps://convertio.co/es/jpg-webp/\n\nUna vez comprimido, intenta subirlo de nuevo.`));
-        }
-
-        if (!file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = error => reject(error);
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const img = new Image();
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 800;
-                const MAX_HEIGHT = 800;
-                let width = img.width;
-                let height = img.height;
-
-                if (width > height) {
-                    if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
-                } else {
-                    if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
-                }
-
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
-                
-                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                resolve(compressedBase64);
-            };
-            img.onerror = reject;
-            img.src = e.target.result;
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-    });
-};
-
-// --- UTILIDADES GENÉRICAS ---
-window.toggleEditSection = window.toggleEditSection || function(sectionId, iconId) {
-    const content = document.getElementById(sectionId);
-    const icon = document.getElementById(iconId);
-    if(!content || !icon) return;
-    
-    if(content.classList.contains('d-none')) {
-        content.classList.remove('d-none');
-        icon.classList.replace('bi-chevron-down', 'bi-chevron-up');
-    } else {
-        content.classList.add('d-none');
-        icon.classList.replace('bi-chevron-up', 'bi-chevron-down');
-    }
-};
-
-window.toggleSection = window.toggleSection || function(elementId, show) {
-    const el = document.getElementById(elementId);
-    if(el) { show ? el.classList.remove('d-none') : el.classList.add('d-none'); }
-};
-
-window.toggleValMethod = function() {
-    const isPin = document.getElementById('valPin').checked;
-    window.toggleSection('val-pin-section', isPin);
-    window.toggleSection('val-json-section', !isPin);
-};
-
-window.validarIdentidad = function() {
-    if(typeof window.showSysAlert === 'function') window.showSysAlert('success', 'Validación Correcta', 'Identidad confirmada.');
-    document.getElementById('new-password-section').classList.remove('d-none');
-};
-
-window.generarNuevaLlave = function() {
-    const p1 = document.getElementById('perf-new-pass1').value;
-    const p2 = document.getElementById('perf-new-pass2').value;
-    if(!p1 || p1 !== p2) return (typeof window.showSysAlert === 'function') ? window.showSysAlert('warning', 'Error', 'Las nuevas contraseñas no coinciden.') : null;
-    
-    const blob = new Blob([JSON.stringify({msg: "Nueva llave simulada"}, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = `myCloudKey_actualizada.json`;
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    if(typeof window.showSysAlert === 'function') window.showSysAlert('success', '¡Actualizado!', 'Contraseña cambiada.');
-    document.getElementById('new-password-section').classList.add('d-none');
-};
-
-window.showSysConfirm = function(title, message, callback) {
-    const titleEl = document.getElementById('sysConfirmTitle');
-    const msgEl = document.getElementById('sysConfirmMsg');
-    const modalEl = document.getElementById('sysConfirmModal');
-    
-    if(titleEl && msgEl && modalEl) {
-        titleEl.innerText = title;
-        msgEl.innerText = message;
-        window.confirmCallback = callback;
-        
-        let modalInstance = bootstrap.Modal.getInstance(modalEl);
-        if (!modalInstance) modalInstance = new bootstrap.Modal(modalEl);
-        modalInstance.show();
-    }
-};
-
-window.iniciarBorrado = function() {
-    window.showSysConfirm('Advertencia 1/3', '¿Deseas eliminar tu perfil permanentemente?', () => {
-        window.showSysConfirm('Advertencia 2/3', '¿Se perderá absolutamente toda tu información?', () => {
-            window.showSysConfirm('Advertencia 3/3', 'ÚLTIMA ADVERTENCIA. ¿Eliminar permanentemente tu cuenta de la nube?', () => {
-                localStorage.clear();
-                if(typeof window.showSysAlert === 'function') window.showSysAlert('success', 'Perfil Eliminado', 'Borrado permanente.');
-                setTimeout(() => window.location.hash = 'home', 2000);
-            });
-        });
-    });
-};
-
-window.updateProfileIcons = function() {
-    const data = window.currentProfileData || {};
-    const logoBase64 = data['perf-g-logo'] || data['perf-emp-img'] || null;
-    const topBtn = document.getElementById('top-profile-btn');
-    if (topBtn) {
-        if (logoBase64 && logoBase64.startsWith('data:image')) {
-            topBtn.innerHTML = `<img src="${logoBase64}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; border: 2px solid var(--teal-main);">`;
-        } else {
-            topBtn.innerHTML = `<i class="bi bi-person-circle fs-5 text-teal"></i>`;
-        }
-    }
-};
-
-window.isEditingProfile = false; 
-
-window.loadProfileData = async function() {
-    const emailInput = document.getElementById('perf-email');
-    const email = localStorage.getItem('userEmail');
-    if(emailInput) emailInput.value = email || 'usuario@nube.com';
-
-    let dataLoaded = false;
-
-    try {
-        const response = await fetch(`http://localhost:3000/api/perfil?email=${email}`);
-        if (response.ok) {
-            const result = await response.json();
-            const data = typeof result.profileData === 'string' ? JSON.parse(result.profileData) : (result.profileData || {});
-            window.currentProfileData = data;
-            await window.idbCache.set(email, data);
-            dataLoaded = true;
-        }
-    } catch (error) {
-        console.warn("Fallo de servidor, intentando carga offline (IndexedDB).", error);
-    }
-
-    if (!dataLoaded) {
-        const offlineData = await window.idbCache.get(email);
-        if (offlineData && Object.keys(offlineData).length > 0) {
-            window.currentProfileData = offlineData;
-            dataLoaded = true;
-            if(typeof window.showSysAlert === 'function') window.showSysAlert('info', 'Modo Offline', 'Se ha cargado tu perfil desde el almacenamiento local.');
-        }
-    }
-
-    if (dataLoaded) {
-        const data = window.currentProfileData;
-        Object.keys(data).forEach(id => {
-            const el = document.getElementById(id);
-            if(el) {
-                if (el.classList.contains('profile-rich-text')) el.innerHTML = data[id] || '';
-                else if (el.type === 'checkbox' || el.type === 'radio') el.checked = data[id];
-                else if (el.type !== 'file') el.value = data[id];
-            }
-        });
-
-        if(data['perf-theme-main']) {
-            window.selectProfileTheme(data['perf-theme-main'], data['perf-theme-light']);
-        }
-        window.isEditingProfile = false; 
-    } else {
-        window.currentProfileData = {};
-        window.isEditingProfile = true;
-    }
-    
-    window.renderEditModeState();
-    window.updateProfileIcons();
-    window.renderWhatsAppButton();
-};
-
-window.guardarPerfil = async function() {
-    const inputs = document.querySelectorAll('.profile-input');
-    const email = localStorage.getItem('userEmail');
-    const data = { ...window.currentProfileData }; 
-    
-    const btnSave = document.getElementById('btn-save-profile-bottom');
-    const originalText = btnSave ? btnSave.innerHTML : 'Guardar';
-    if(btnSave) { btnSave.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Guardando...'; btnSave.disabled = true; }
-
-    try {
-        for (let i of inputs) {
-            if (i.classList.contains('profile-rich-text')) {
-                data[i.id] = i.innerHTML;
-            } else if (i.type === 'checkbox') {
-                data[i.id] = i.checked;
-            } else if (i.type === 'file') {
-                if (i.files && i.files.length > 0) {
-                    data[i.id] = await window.getBase64(i.files[0]);
-                }
-            } else {
-                data[i.id] = i.value;
-            }
-        }
-        
-        data['perf-theme-main'] = window.selectedTheme.main;
-        data['perf-theme-light'] = window.selectedTheme.light;
-
-        const response = await fetch('http://localhost:3000/api/perfil', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: email, profileData: data })
-        });
-
-        if (response.ok) {
-            window.currentProfileData = data;
-            await window.idbCache.set(email, data);
-            
-            if(typeof window.showSysAlert === 'function') window.showSysAlert('success', 'Perfil Guardado', 'Tu información se almacenó exitosamente en la nube.');
-            window.isEditingProfile = false; 
-            window.renderEditModeState(); 
-            window.updateProfileIcons();
-            window.renderWhatsAppButton();
-        } else {
-            const errData = await response.json().catch(() => ({}));
-            throw new Error(errData.error || errData.message || "Rechazado por el servidor.");
-        }
-
-    } catch (error) {
-        if(typeof window.showSysAlert === 'function') window.showSysAlert('warning', 'Aviso', error.message);
-    } finally {
-        if(btnSave) { btnSave.innerHTML = originalText; btnSave.disabled = false; }
-    }
-};
-
-window.toggleEditMode = function() {
-    window.isEditingProfile = !window.isEditingProfile;
-    window.renderEditModeState();
-};
-
-window.renderEditModeState = function() {
-    const cardView = document.getElementById('profile-card-view');
-    const editView = document.getElementById('profile-edit-view');
-
-    if (window.isEditingProfile) {
-        if(cardView) cardView.classList.add('d-none');
-        if(editView) editView.classList.remove('d-none');
-        
-        const switchGrupo = document.getElementById('perf-switch-grupo');
-        const switchEmp = document.getElementById('perf-switch-emp');
-        const wrapperGrupo = document.getElementById('wrapper-grupo-perf');
-        const wrapperEmp = document.getElementById('wrapper-emp-perf');
-        const bodyGrupo = document.getElementById('perf-form-grupo-body');
-        const bodyEmp = document.getElementById('perf-form-emp-body');
-        const iconGrupo = document.getElementById('perf-grupo-icon');
-        const iconEmp = document.getElementById('perf-emp-icon');
-
-        if (switchGrupo && switchEmp && wrapperGrupo && wrapperEmp) {
-            wrapperGrupo.classList.remove('d-none');
-            wrapperEmp.classList.remove('d-none');
-            
-            if (switchGrupo.checked) {
-                wrapperEmp.classList.add('d-none');
-                if(bodyGrupo) bodyGrupo.classList.remove('d-none');
-                if(iconGrupo) iconGrupo.classList.replace('bi-chevron-down', 'bi-chevron-up');
-            } else {
-                if(bodyGrupo) bodyGrupo.classList.add('d-none');
-                if(iconGrupo) iconGrupo.classList.replace('bi-chevron-up', 'bi-chevron-down');
-            }
-
-            if (switchEmp.checked) {
-                wrapperGrupo.classList.add('d-none');
-                if(bodyEmp) bodyEmp.classList.remove('d-none');
-                if(iconEmp) iconEmp.classList.replace('bi-chevron-down', 'bi-chevron-up');
-            } else {
-                if(bodyEmp) bodyEmp.classList.add('d-none');
-                if(iconEmp) iconEmp.classList.replace('bi-chevron-up', 'bi-chevron-down');
-            }
-        }
-
-        const switchGExt = document.getElementById('perf-g-ext');
-        if (switchGExt && window.toggleSection) window.toggleSection('perf-g-idiomas-container', switchGExt.checked);
-
-        const switchEmpExt = document.getElementById('perf-emp-ext');
-        if (switchEmpExt && window.toggleSection) window.toggleSection('perf-emp-idiomas-container', switchEmpExt.checked);
-        
-        const btnWa = document.getElementById('floating-wa-btn');
-        if(btnWa) btnWa.classList.add('d-none');
-        
-        // --- INYECCIÓN DE PREVISUALIZACIÓN Y BOTONES ELIMINAR ARCHIVOS ---
-        const fileFields = ['perf-g-logo', 'perf-g-cert', 'perf-emp-img', 'perf-emp-sello-input'];
-        fileFields.forEach(id => {
-            const input = document.getElementById(id);
-            if (input && input.parentElement) {
-                
-                // 1. Imagen o iframe de Preview
-                let preview = document.getElementById('preview-' + id);
-                if (!preview) {
-                    preview = document.createElement('div');
-                    preview.id = 'preview-' + id;
-                    preview.className = 'mb-2 text-center';
-                    input.parentElement.insertBefore(preview, input);
-                }
-                
-                const fileData = window.currentProfileData[id];
-                if (fileData) {
-                    if (fileData.startsWith('data:application/pdf')) {
-                        preview.innerHTML = `<iframe src="${fileData}" style="width:100%; height:120px; border:1px solid var(--input-border); border-radius:0.5rem; background:white;"></iframe>`;
-                    } else {
-                        preview.innerHTML = `<img src="${fileData}" style="max-height: 80px; max-width:100%; border-radius: 0.5rem; object-fit: contain; border: 1px solid var(--input-border); padding:2px; background: white;">`;
-                    }
-                    preview.style.display = 'block';
-                } else {
-                    preview.style.display = 'none';
-                    preview.innerHTML = '';
-                }
-
-                // 2. Botón Eliminar
-                if (!document.getElementById('del-btn-' + id)) {
-                    const delBtn = document.createElement('button');
-                    delBtn.id = 'del-btn-' + id;
-                    delBtn.type = 'button';
-                    delBtn.className = 'btn btn-sm btn-outline-danger mt-2 w-100 fw-bold';
-                    delBtn.innerHTML = '<i class="bi bi-trash-fill me-1"></i>Eliminar Archivo Guardado';
-                    delBtn.onclick = function() {
-                        delete window.currentProfileData[id];
-                        input.value = "";
-                        this.style.display = 'none';
-                        preview.style.display = 'none';
-                        preview.innerHTML = '';
-                        if(typeof window.showSysAlert === 'function') {
-                            window.showSysAlert('info', 'Archivo Quitado', 'Se quitó de la vista. Haz clic en "Guardar Perfil Completo" para aplicar el cambio permanentemente.');
-                        }
-                    };
-                    input.parentElement.appendChild(delBtn);
-                }
-                
-                const delBtn = document.getElementById('del-btn-' + id);
-                if(delBtn) delBtn.style.display = fileData ? 'block' : 'none';
-            }
-        });
-
-    } else {
-        if(editView) editView.classList.add('d-none');
-        if(cardView) {
-            cardView.classList.remove('d-none');
-            window.updateProfileCardView(); 
-        }
-        
-        const btnWa = document.getElementById('floating-wa-btn');
-        if(btnWa) btnWa.classList.remove('d-none');
-    }
-};
-
-// --- GESTIÓN DE COLAPSABLES PARA LA TARJETA (LECTURA) ---
-window.toggleCardSection = function(sectionId, headerIconId) {
-    const content = document.getElementById(sectionId);
-    const icon = document.getElementById(headerIconId);
-    if (!content || !icon) return;
-
-    if (content.classList.contains('d-none')) {
-        content.classList.remove('d-none');
-        icon.classList.replace('bi-chevron-down', 'bi-chevron-up');
-        localStorage.setItem('collapse_' + sectionId, 'open');
-    } else {
-        content.classList.add('d-none');
-        icon.classList.replace('bi-chevron-up', 'bi-chevron-down');
-        localStorage.setItem('collapse_' + sectionId, 'closed');
-    }
-};
-
-const buildCollapsibleSection = (id, title, iconClass, innerHtml) => {
-    const isClosed = localStorage.getItem('collapse_' + id) === 'closed';
-    const displayClass = isClosed ? 'd-none' : '';
-    const chevronClass = isClosed ? 'bi-chevron-down' : 'bi-chevron-up';
-    
-    return `
-    <div class="mb-4 text-start">
-        <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3" style="cursor:pointer;" onclick="window.toggleCardSection('${id}', 'chevron-${id}')">
-            <h6 class="text-teal fw-bold mb-0"><i class="bi ${iconClass} me-2"></i>${title}</h6>
-            <i class="bi ${chevronClass} text-muted" id="chevron-${id}"></i>
-        </div>
-        <div id="${id}" class="${displayClass}">
-            ${innerHtml}
-        </div>
-    </div>`;
-};
 
 window.updateProfileCardView = function() {
     const data = window.currentProfileData || {};
     const email = localStorage.getItem('userEmail') || 'usuario@correo.com';
 
+    // 1. Aplicar Tema Guardado
     if(data['perf-theme-main']) {
         document.documentElement.style.setProperty('--teal-main', data['perf-theme-main']);
         document.documentElement.style.setProperty('--teal-light', data['perf-theme-light']);
@@ -553,6 +25,7 @@ window.updateProfileCardView = function() {
     let headerEntityActive = false;
     const fullName = data['perf-ape1'] ? `${data['perf-nombre'] || ''} ${data['perf-ape1'] || ''} ${data['perf-ape2'] || ''}`.trim() : (data['perf-nombre'] || 'Usuario');
 
+    // 2. Encabezado Inteligente
     if (data['perf-switch-grupo'] && data['perf-g-op']) {
         cardNombre.innerText = data['perf-g-op'];
         headerEntityActive = true;
@@ -569,6 +42,7 @@ window.updateProfileCardView = function() {
     if(data['perf-tel']) { cardTel.innerText = data['perf-tel']; cardTel.parentElement.classList.remove('d-none'); } 
     else cardTel.parentElement.classList.add('d-none');
 
+    // 3. Avatar del Encabezado
     const logoBase64 = data['perf-g-logo'] || data['perf-emp-img'] || null;
     const cardProfileIcon = document.getElementById('card-profile-icon');
     if (cardProfileIcon) {
@@ -581,6 +55,7 @@ window.updateProfileCardView = function() {
         }
     }
 
+    // Helper: Generador de Activadores
     const renderActivadores = (prefix) => {
         const redesNombres = ['WhatsApp', 'Signal', 'Email', 'Facebook', 'Instagram', 'TikTok', 'Telegram', 'Waze', 'Google Maps'];
         const redesIconos = ['bi-whatsapp', 'bi-chat-dots', 'bi-envelope', 'bi-facebook', 'bi-instagram', 'bi-tiktok', 'bi-telegram', 'bi-cone-striped', 'bi-geo-alt'];
@@ -596,7 +71,7 @@ window.updateProfileCardView = function() {
 
     let dynamicHtml = '';
 
-    // --- GRUPO ---
+    // --- 4. CONSTRUCCIÓN: GRUPO ---
     if (data['perf-switch-grupo']) {
         let contentHtml = '';
         if(data['perf-g-op']) contentHtml += `<div class="d-flex mb-2"><i class="bi bi-person-badge-fill me-2" style="color: var(--cat-blue); font-size: 1.1rem;"></i><span class="small" style="color: var(--text-dark);"><strong>Operador:</strong> ${data['perf-g-op']}</span></div>`;
@@ -620,10 +95,10 @@ window.updateProfileCardView = function() {
         }
 
         contentHtml += renderActivadores('perf-g');
-        dynamicHtml += buildCollapsibleSection('card-section-grupo', 'Grupo Afiliado', 'bi-people-fill', contentHtml);
+        dynamicHtml += window.buildCollapsibleSection('card-section-grupo', 'Grupo Afiliado', 'bi-people-fill', contentHtml);
     }
 
-    // --- EMPRENDIMIENTO ---
+    // --- 5. CONSTRUCCIÓN: EMPRENDIMIENTO ---
     if (data['perf-switch-emp']) {
         let contentHtml = '';
         if(data['perf-emp-nombre']) contentHtml += `<div class="d-flex mb-2"><i class="bi bi-tag-fill me-2" style="color: var(--cat-orange); font-size: 1.1rem;"></i><span class="small" style="color: var(--text-dark);"><strong>Nombre:</strong> ${data['perf-emp-nombre']}</span></div>`;
@@ -646,10 +121,10 @@ window.updateProfileCardView = function() {
         }
 
         contentHtml += renderActivadores('perf-e');
-        dynamicHtml += buildCollapsibleSection('card-section-emp', 'Emprendimiento', 'bi-shop', contentHtml);
+        dynamicHtml += window.buildCollapsibleSection('card-section-emp', 'Emprendimiento', 'bi-shop', contentHtml);
     }
 
-    // --- IDIOMAS ---
+    // --- 6. CONSTRUCCIÓN: IDIOMAS ---
     const idiomasInfo = [
         { id: 'es', flag: '🇨🇷', msg: 'Bienvenidos' }, { id: 'en', flag: '🇺🇸', msg: 'Welcome' },
         { id: 'de', flag: '🇩🇪', msg: 'Willkommen' }, { id: 'it', flag: '🇮🇹', msg: 'Benvenuti' },
@@ -672,20 +147,20 @@ window.updateProfileCardView = function() {
 
     if (idiomasHtml) {
         const innerTuristas = `<div class="d-flex flex-wrap">${idiomasHtml}</div>`;
-        dynamicHtml += buildCollapsibleSection('card-section-turistas', 'Atención a Turistas', 'bi-translate', innerTuristas);
+        dynamicHtml += window.buildCollapsibleSection('card-section-turistas', 'Atención a Turistas', 'bi-translate', innerTuristas);
     }
 
-    // --- CONTACTO PERSONAL ---
+    // --- 7. CONSTRUCCIÓN: CONTACTO PERSONAL ---
     if (headerEntityActive) {
         let contentPersonal = `
             <div class="d-flex mb-2"><i class="bi bi-person-fill me-2" style="color: var(--cat-blue); font-size: 1.1rem;"></i><span class="small" style="color: var(--text-dark);"><strong>Nombre:</strong> ${fullName}</span></div>
             <div class="d-flex mb-2"><i class="bi bi-envelope-fill me-2" style="color: var(--cat-pink); font-size: 1.1rem;"></i><span class="small" style="color: var(--text-dark);"><strong>Email:</strong> ${email}</span></div>
             ${data['perf-tel'] ? `<div class="d-flex mb-2"><i class="bi bi-telephone-fill me-2" style="color: var(--cat-orange); font-size: 1.1rem;"></i><span class="small" style="color: var(--text-dark);"><strong>Teléfono:</strong> ${data['perf-tel']}</span></div>` : ''}
         `;
-        dynamicHtml += buildCollapsibleSection('card-section-contacto', 'Contacto Personal', 'bi-person-lines-fill', contentPersonal);
+        dynamicHtml += window.buildCollapsibleSection('card-section-contacto', 'Contacto Personal', 'bi-person-lines-fill', contentPersonal);
     }
 
-    // --- CERTIFICADO ---
+    // --- 8. CONSTRUCCIÓN: CERTIFICADO ---
     if (data['perf-g-cert']) {
         const certBase64 = data['perf-g-cert'];
         let certMedia = '';
@@ -709,7 +184,7 @@ window.updateProfileCardView = function() {
                 </div>
             </div>
         `;
-        dynamicHtml += buildCollapsibleSection('card-section-cert', 'Certificación', 'bi-award-fill', contentCert);
+        dynamicHtml += window.buildCollapsibleSection('card-section-cert', 'Certificación', 'bi-award-fill', contentCert);
     }
 
     if(!data['perf-switch-grupo'] && !data['perf-switch-emp'] && !headerEntityActive) {
@@ -719,89 +194,10 @@ window.updateProfileCardView = function() {
     const cardContent = document.getElementById('card-dynamic-content');
     if (cardContent) cardContent.innerHTML = dynamicHtml;
     
-    window.updateProfileIcons(); 
+    if(typeof window.updateProfileIcons === 'function') window.updateProfileIcons(); 
 };
 
-window.shareProfile = async function() {
-    const nombreEl = document.getElementById('card-nombre');
-    if(!nombreEl) return;
-    const nombre = nombreEl.innerText;
-    const data = window.currentProfileData || {};
-    
-    let phone = data['perf-tel'] || '';
-    if(data['perf-switch-grupo']) phone = data['perf-g-celular'] || data['perf-g-tellocal'] || phone;
-    else if(data['perf-switch-emp']) phone = data['perf-emp-tel'] || phone;
-
-    const textToShare = `¡Hola! Te comparto la información de ${nombre} en Cloud App.\nContacto: ${phone}`;
-    
-    if (navigator.share) {
-        try { await navigator.share({ title: `Tarjeta de ${nombre}`, text: textToShare }); } 
-        catch (err) { console.log('Error compartiendo', err); }
-    } else {
-        if(navigator.clipboard) {
-            navigator.clipboard.writeText(textToShare);
-            if(typeof window.showSysAlert === 'function') window.showSysAlert('info', 'Texto Copiado', 'Tu navegador no soporta compartir nativo. El texto se ha copiado.');
-        }
-    }
-};
-
-window.downloadProfileJPG = async function() {
-    const card = document.getElementById('profile-card-view');
-    const actionsFooter = document.getElementById('card-actions-footer');
-    const btn = document.getElementById('btn-download-jpg');
-    const originalText = btn.innerHTML;
-    if(!card) return;
-
-    try {
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Procesando...';
-        btn.disabled = true;
-
-        if (typeof html2canvas === 'undefined') {
-            await new Promise((resolve, reject) => {
-                const script = document.createElement('script');
-                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-                script.onload = resolve;
-                script.onerror = reject;
-                document.head.appendChild(script);
-            });
-        }
-
-        if (actionsFooter) actionsFooter.classList.add('d-none');
-        
-        const originalBorderRadius = card.style.borderRadius;
-        const originalBoxShadow = card.style.boxShadow;
-        const originalMargin = card.style.marginBottom;
-        
-        card.style.borderRadius = '0';
-        card.style.boxShadow = 'none';
-        card.style.marginBottom = '0';
-
-        const canvas = await html2canvas(card, { scale: 3, useCORS: true, backgroundColor: '#ffffff' });
-
-        card.style.borderRadius = originalBorderRadius;
-        card.style.boxShadow = originalBoxShadow;
-        card.style.marginBottom = originalMargin;
-        if (actionsFooter) actionsFooter.classList.remove('d-none');
-
-        const dataUrl = canvas.toDataURL('image/jpeg', 1.0);
-        const link = document.createElement('a');
-        const nombreTarjeta = document.getElementById('card-nombre') ? document.getElementById('card-nombre').innerText.replace(/\s+/g, '_') : 'Presentacion';
-        link.download = `Tarjeta_${nombreTarjeta}.jpg`;
-        link.href = dataUrl;
-        link.click();
-
-        if(typeof window.showSysAlert === 'function') window.showSysAlert('success', '¡Descarga Completa!', 'Tu tarjeta se ha guardado.');
-
-    } catch (error) {
-        if (actionsFooter) actionsFooter.classList.remove('d-none');
-        if(typeof window.showSysAlert === 'function') window.showSysAlert('warning', 'Error', 'No se pudo generar la tarjeta.');
-    } finally {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-    }
-};
-
-// --- PLANTILLA HTML DEL PERFIL ---
+// --- PLANTILLA HTML PRINCIPAL ---
 window.templates.perfil = `
     <div class="module-fade-in pb-5">
         
@@ -851,7 +247,7 @@ window.templates.perfil = `
                 <div id="edit-personalizar" class="p-3 pt-0 border-top d-none" style="background: var(--white); border-color: var(--input-border) !important;">
                     <p class="small text-muted mb-3 mt-2" style="color: var(--text-dark);">Elige un color para que tu tarjeta destaque y guárdalo en tu perfil.</p>
                     <div class="d-flex flex-wrap justify-content-center p-2 rounded" style="background: var(--input-bg); border: 1px solid var(--input-border);">
-                        ${renderColorPalette()}
+                        ${window.renderColorPalette ? window.renderColorPalette() : ''}
                     </div>
                 </div>
             </div>
