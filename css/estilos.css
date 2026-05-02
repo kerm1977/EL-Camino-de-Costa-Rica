@@ -93,22 +93,40 @@ body {
 .nav-link.active { opacity: 1; }
 .nav-item.active i { transform: scale(1.2); }
 
-/* --- DISEÑO DEL BOTÓN CENTRAL (FAB) MEJORADO --- */
+/* --- DISEÑO DEL BOTÓN CENTRAL (FAB) PERFECTAMENTE CENTRADO --- */
 .nav-item.fab-container { position: relative; z-index: 1040; }
 .fab {
-    background: var(--white);
-    width: 80px; height: 80px;
-    min-width: 80px; min-height: 80px;
+    background: #ffffff !important; /* Siempre blanco puro para que funda perfecto con el logo */
+    width: 85px; height: 85px;
+    min-width: 85px; min-height: 85px;
     border-radius: 50%;
+    
+    /* Flexbox para centrado matemático */
     display: flex; align-items: center; justify-content: center;
+    
     transition: transform 0.2s ease; 
-    margin-top: -30px; /* Empuja el logo hacia arriba para que sobresalga */
-    border: 2px solid var(--cat-orange); /* Borde naranja leve */
-    flex-shrink: 0; /* Evita que el flexbox de la barra lo aplaste */
+    margin-top: -35px;
+    
+    /* Bordes y Sombreado */
+    border: 3px solid var(--cat-orange);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15); /* Sombra suave para darle volumen */
+    
+    flex-shrink: 0; 
+    box-sizing: border-box; /* El padding se descuenta del width/height para que no se ovalice */
+    padding: 3px; /* Pequeño respiro entre el borde naranja y la imagen */
     overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 .fab:active { transform: scale(0.9); }
+
+/* Centrado absoluto de la imagen usando Flexbox automático del padre */
+.fab img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important; /* 'contain' encaja la imagen sin cortar bordes */
+    border-radius: 50%; /* La imagen en sí también hereda la curvatura */
+    display: block;
+    margin: auto;
+}
 
 .storage-card {
     background: linear-gradient(135deg, var(--teal-light), var(--teal-main));
@@ -164,3 +182,47 @@ body {
 }
 .profile-input[readonly]::placeholder { color: transparent !important; }
 .profile-input[type="file"][disabled] { display: none !important; }
+
+/* ==========================================
+   RESPONSIVIDAD FLUIDA PANTALLAS PEQUEÑAS
+   (Escala proporcional debajo de los 400px)
+========================================== */
+@media (max-width: 400px) {
+    /* Barra de navegación inferior y sus íconos */
+    .nav-content {
+        padding: 0 3vw; 
+    }
+    .nav-item i {
+        font-size: 6vw; /* Proporcional a 1.5rem */
+    }
+    
+    /* El Logo Central (FAB) */
+    .fab {
+        width: 21.25vw;        /* Equivalente a 85px en 400px */
+        height: 21.25vw;
+        min-width: 45px;       /* Tope mínimo para que no desaparezca en pantallas ultra chicas */
+        min-height: 45px;
+        margin-top: -8.75vw;   /* Equivalente a -35px en 400px */
+        border-width: max(2px, 0.75vw); 
+        padding: max(2px, 0.75vw);
+    }
+    
+    /* Iconos de las tarjetas de Home (Squircles) */
+    .squircle {
+        width: 15vw;           /* Equivalente a 60px en 400px */
+        height: 15vw;
+        font-size: 7.2vw;      /* Equivalente a 1.8rem en 400px */
+        border-radius: 4.5vw;  /* Curvatura proporcional */
+    }
+    
+    /* Textos de las tarjetas de Home */
+    .folder-card {
+        padding: 4vw;          /* Ajuste interno proporcional */
+    }
+    .folder-card h6 {
+        font-size: 3.8vw !important; /* Equivalente a ~15px en 400px */
+    }
+    .folder-card small {
+        font-size: 3vw !important;   /* Equivalente a ~12px en 400px */
+    }
+}

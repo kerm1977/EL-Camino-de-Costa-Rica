@@ -3,6 +3,9 @@
 // Archivo: js/app.js
 // ==========================================
 
+// Variable global para evitar consultar la base de datos en cada clic
+window.appState = window.appState || { profileLoaded: false };
+
 // 1. Alertas del Sistema Globales
 window.showSysAlert = function(type, title, message) {
     const alertTitle = document.getElementById('sysAlertTitle');
@@ -53,8 +56,24 @@ window.toggleTheme = function() {
 // 4. Cerrar Sesión
 window.logout = function(e) {
     if(e) e.preventDefault();
+    
+    // Limpiar localStorage
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('userEmail'); 
+    
+    // Resetear variables en memoria
+    window.appState.profileLoaded = false;
+    window.currentProfileData = {}; 
+    
+    // Resetear ícono visual superior
+    const topProfileBtn = document.getElementById('top-profile-btn');
+    if (topProfileBtn) topProfileBtn.innerHTML = '<i class="bi bi-person-circle fs-5 text-teal"></i>';
+    
+    // Destruir botón global de WhatsApp si existía
+    const btnWa = document.getElementById('floating-wa-btn');
+    if(btnWa) btnWa.remove();
+
+    // Redirigir al inicio
     window.location.hash = 'home';
     route(); 
 };
@@ -95,14 +114,29 @@ function route() {
     if(window.templates && window.templates[viewId]) {
         container.innerHTML = window.templates[viewId];
 
-        // Hook especial para el perfil (Cargar datos al entrar)
-        if (viewId === 'perfil' && isLoggedIn) {
-            setTimeout(() => {
-                if(typeof window.loadProfileData === 'function') {
-                    window.loadProfileData();
-                }
-            }, 50);
+        // --- CARGADOR INTELIGENTE DE DATOS DEL PERFIL ---
+        if (isLoggedIn) {
+            // Caso A: Primera vez que rutea (Ej. Recién logueado o abrió la App), carga la BD en 2do plano
+            if (!window.appState.profileLoaded) {
+                window.appState.profileLoaded = true;
+                setTimeout(() => {
+                    if(typeof window.loadProfileData === 'function') window.loadProfileData();
+                }, 100);
+            }
+            // Caso B: Entró explícitamente a la vista de perfil (hay que recargar para llenar el formulario HTML)
+            else if (viewId === 'perfil') {
+                setTimeout(() => {
+                    if(typeof window.loadProfileData === 'function') window.loadProfileData();
+                }, 50);
+            }
+            // Caso C: Navega entre otras vistas (Aseguramos que el ícono siga pintado sin consultar a la BD)
+            else {
+                setTimeout(() => {
+                    if(typeof window.updateProfileIcons === 'function') window.updateProfileIcons();
+                }, 50);
+            }
         }
+        
     } else {
         container.innerHTML = `<div class="text-center mt-5 pt-5"><h4>Error 404</h4><p>Vista no encontrada.</p></div>`;
     }
@@ -123,7 +157,8 @@ function route() {
 
     // Marcar pestaña activa en el menú
     document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
-    const activeNav = document.querySelector(`.nav-link[data-target="${viewId}"]`);
+    // Como perfil no está en el nav de abajo, evitamos errores al buscar su clase
+    const activeNav = document.querySelector(`.nav-link[data-target="${viewId === 'perfil' ? 'login' : viewId}"]`);
     if(activeNav) activeNav.classList.add('active');
 
     window.scrollTo(0, 0);
