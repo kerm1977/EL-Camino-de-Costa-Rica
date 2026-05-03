@@ -184,6 +184,87 @@ body {
 .profile-input[type="file"][disabled] { display: none !important; }
 
 /* ==========================================
+   GRILLA DINÁMICA DIRECTORIOS (Tour Op / Emprendimientos)
+========================================== */
+.grid-afiliados {
+    display: grid;
+    gap: 12px;
+    padding: 5px 0;
+}
+
+/* 1. Menos de 300px: 1 tarjeta por fila */
+@media (max-width: 299px) {
+    .grid-afiliados { grid-template-columns: 1fr; }
+}
+
+/* 2. De 300px hasta 450px: 2 tarjetas por fila exactas */
+@media (min-width: 300px) and (max-width: 450px) {
+    .grid-afiliados { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* 3. Vistas mayores a 450px: Autocompletar fluido (3 o más) */
+@media (min-width: 451px) {
+    .grid-afiliados { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+}
+
+/* Tarjeta individual del Directorio */
+.card-afiliado {
+    background: var(--white);
+    border-radius: 1.2rem;
+    padding: 15px 10px;
+    text-align: center;
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--input-border);
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    cursor: pointer;
+}
+.card-afiliado:active { transform: scale(0.95); }
+
+/* LOGO DEL DIRECTORIO - Círculo perfecto blindado contra flexbox */
+.card-afiliado-img {
+    width: 65px;
+    height: 65px;
+    min-width: 65px; /* Forzar el ancho */
+    min-height: 65px; /* Forzar el alto */
+    flex-shrink: 0; /* Evita que se aplaste (se vuelva óvalo) */
+    box-sizing: border-box;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 12px;
+    border: 3px solid var(--teal-light);
+    background: var(--bg-color);
+    padding: 2px;
+}
+
+.card-afiliado-title {
+    font-size: 0.80rem;
+    font-weight: 800;
+    color: var(--text-dark);
+    line-height: 1.2;
+    margin-bottom: 8px;
+    width: 100%;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Máximo 2 líneas de texto */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.card-afiliado-flags {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    justify-content: center;
+    font-size: 1.1rem;
+    padding-top: 8px;
+    border-top: 1px dashed var(--input-border);
+    width: 100%;
+}
+
+/* ==========================================
    RESPONSIVIDAD FLUIDA PANTALLAS PEQUEÑAS
    (Escala proporcional debajo de los 400px)
 ========================================== */

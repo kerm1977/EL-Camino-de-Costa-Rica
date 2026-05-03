@@ -172,6 +172,35 @@ app.get('/api/perfil', (req, res) => {
 });
 
 // ==========================================
+// RUTA 5: OBTENER DIRECTORIO PÚBLICO
+// ==========================================
+app.get('/api/directorio', (req, res) => {
+    db.all(`SELECT profile_data FROM usuarios WHERE profile_data IS NOT NULL`, [], (err, rows) => {
+        if (err) {
+            console.error("❌ Error de SQLite cargando directorio:", err.message);
+            return res.status(500).json({ error: err.message });
+        }
+        
+        let operadores = [];
+        let emprendimientos = [];
+
+        rows.forEach(row => {
+            try {
+                const data = JSON.parse(row.profile_data);
+                // Si prendieron el switch de Operador y le pusieron nombre
+                if (data['perf-switch-grupo'] && data['perf-g-op']) operadores.push(data);
+                // Si prendieron el switch de Emprendimiento y le pusieron nombre
+                if (data['perf-switch-emp'] && data['perf-emp-nombre']) emprendimientos.push(data);
+            } catch(e) {
+                // Ignorar JSON malformado
+            }
+        });
+
+        res.status(200).json({ operadores, emprendimientos });
+    });
+});
+
+// ==========================================
 // INICIAR EL SERVIDOR
 // ==========================================
 const PUERTO = 3000;

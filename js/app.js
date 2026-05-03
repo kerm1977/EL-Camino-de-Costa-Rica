@@ -95,10 +95,13 @@ function route() {
         return;
     }
 
-    // Mostrar u ocultar barra inferior en pantallas de autenticación
+    // Mostrar u ocultar barra inferior en pantallas específicas
     if (bottomNav) {
-        if (viewId === 'login' || viewId === 'registro') bottomNav.style.display = 'none';
-        else bottomNav.style.display = 'block';
+        if (viewId === 'login' || viewId === 'registro' || viewId === 'tour_operadores' || viewId === 'emprendimientos') {
+            bottomNav.style.display = 'none';
+        } else {
+            bottomNav.style.display = 'block';
+        }
     }
 
     // Mostrar botón superior de perfil si está logueado y no está en autenticación
@@ -113,6 +116,13 @@ function route() {
     // Cargar Plantilla HTML desde window.templates
     if(window.templates && window.templates[viewId]) {
         container.innerHTML = window.templates[viewId];
+
+        // --- MANEJO DE DIRECTORIOS PÚBLICOS ---
+        if (viewId === 'tour_operadores') {
+            if(typeof window.cargarDirectorio === 'function') window.cargarDirectorio('operadores');
+        } else if (viewId === 'emprendimientos') {
+            if(typeof window.cargarDirectorio === 'function') window.cargarDirectorio('emprendimientos');
+        }
 
         // --- CARGADOR INTELIGENTE DE DATOS DEL PERFIL ---
         if (isLoggedIn) {

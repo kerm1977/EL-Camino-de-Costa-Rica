@@ -1,7 +1,7 @@
 // ==========================================
 // MÓDULO: PERFIL TOOLS (Herramientas y Seguridad)
 // Archivo: js/perfil_tools.js
-// Responsabilidad: Temas, WhatsApp, Descarga JPG, Compartir y Utilidades de Perfil
+// Responsabilidad: Temas, Descarga JPG, Compartir y Utilidades de Perfil
 // ==========================================
 
 // --- GESTIÓN DE TEMA (PERMANENTE EN BASE DE DATOS) ---
@@ -52,33 +52,12 @@ window.renderColorPalette = function() {
     return html;
 };
 
-// --- GESTIÓN DE BOTÓN WHATSAPP ---
+// --- GESTIÓN DE BOTÓN WHATSAPP GLOBAL (ELIMINADO) ---
+// Mantenemos la función para que no dé error en la carga, 
+// pero solo la usamos para limpiar si quedó algún botón "pegado".
 window.renderWhatsAppButton = function() {
-    const data = window.currentProfileData || {};
-    let phone = null;
-    
-    if(data['perf-switch-grupo']) {
-        phone = data['perf-g-celular'] || data['perf-g-tellocal'];
-    } else if(data['perf-switch-emp']) {
-        phone = data['perf-emp-tel'];
-    }
-    
     const existingBtn = document.getElementById('floating-wa-btn');
     if(existingBtn) existingBtn.remove();
-    
-    if(phone && phone.trim() !== '') {
-        let cleanPhone = phone.replace(/\D/g, '');
-        if(!cleanPhone.startsWith('506') && cleanPhone.length === 8) cleanPhone = '506' + cleanPhone;
-        
-        const btn = document.createElement('a');
-        btn.id = 'floating-wa-btn';
-        btn.href = `https://wa.me/${cleanPhone}`;
-        btn.target = '_blank';
-        btn.innerHTML = '<i class="bi bi-whatsapp"></i>';
-        btn.className = 'btn-circle shadow-lg d-flex align-items-center justify-content-center module-fade-in';
-        btn.style.cssText = 'position: fixed; bottom: 95px; right: 15px; width: 55px; height: 55px; background-color: #25D366; color: white !important; font-size: 2rem; z-index: 1040; text-decoration: none;';
-        document.body.appendChild(btn);
-    }
 };
 
 // --- VISOR DE CERTIFICADOS INCRUSTADO ---
@@ -158,10 +137,21 @@ window.updateProfileIcons = function() {
     const data = window.currentProfileData || {};
     const logoBase64 = data['perf-g-logo'] || data['perf-emp-img'] || null;
     const topBtn = document.getElementById('top-profile-btn');
+    
     if (topBtn) {
         if (logoBase64 && logoBase64.startsWith('data:image')) {
-            topBtn.innerHTML = `<img src="${logoBase64}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; border: 2px solid var(--teal-main);">`;
+            // Convertimos el botón padre en una "máscara de recorte" perfecta
+            topBtn.style.padding = '0';
+            topBtn.style.overflow = 'hidden'; 
+            topBtn.style.border = '2px solid var(--teal-main)';
+            
+            // La imagen llenará el botón sin salirse jamás
+            topBtn.innerHTML = `<img src="${logoBase64}" style="width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%;">`;
         } else {
+            // Restauramos los valores si no hay imagen
+            topBtn.style.padding = '';
+            topBtn.style.overflow = 'visible';
+            topBtn.style.border = 'none';
             topBtn.innerHTML = `<i class="bi bi-person-circle fs-5 text-teal"></i>`;
         }
     }
