@@ -166,7 +166,7 @@ window.renderDirectorioGrid = function(lista, tipo) {
                 <div style="grid-column: 1 / -1;" class="mt-3 mb-1">
                     <div class="d-flex align-items-center">
                         <span class="fs-5 fw-bold" style="color: var(--teal-main);">${letraActual}</span>
-                        <div class="ms-2 flex-grow-1" style="height: 2px; background: var(--input-bg);"></div>
+                        <div class="ms-2 flex-grow-1" style="height: 2px; background: rgba(100, 100, 100, 0.4);"></div>
                     </div>
                 </div>`;
             }
@@ -180,15 +180,15 @@ window.renderDirectorioGrid = function(lista, tipo) {
                        <i class="bi ${defaultIcon} fs-3"></i>
                    </div>`;
 
-            // Fila Horizontal List-View
+            // Fila Horizontal List-View (Sin cajas, separada por línea sutil gris oscuro leve)
             html += `
-                <div style="grid-column: 1 / -1;" class="module-fade-in d-flex align-items-center p-3 mb-2 rounded shadow-sm border" onclick="window.mostrarPerfilPublico('${tipo}', ${index})" style="background: var(--white); border-color: var(--input-border) !important; cursor: pointer;">
+                <div style="grid-column: 1 / -1;" class="module-fade-in d-flex align-items-center py-3 px-1 border-bottom" onclick="window.mostrarPerfilPublico('${tipo}', ${index})" style="border-color: rgba(100, 100, 100, 0.4) !important; cursor: pointer; background: transparent;">
                     <div class="me-3 d-flex align-items-center justify-content-center">${logoList}</div>
                     <div class="flex-grow-1 text-start overflow-hidden">
                         <h6 class="fw-bold mb-1 text-truncate" style="color: var(--text-dark);">${nombre}</h6>
                         ${banderas ? `<div class="d-flex gap-1 flex-wrap">${banderas}</div>` : ''}
                     </div>
-                    <i class="bi bi-chevron-right text-muted ms-2"></i>
+                    <i class="bi bi-chevron-right text-muted ms-2 opacity-50"></i>
                 </div>
             `;
         } else {
@@ -344,8 +344,8 @@ window.mostrarPerfilPublico = function(tipo, index) {
     if (isOp && item['perf-g-cert']) {
         const c = item['perf-g-cert'];
         let certMedia = c.startsWith('data:application/pdf')
-            ? `<iframe src="${c}" style="width:100%; height:250px; border:1px solid var(--input-border); border-radius: 0.5rem; background:white;"></iframe>`
-            : `<img src="${c}" style="width:100%; max-height:250px; object-fit:contain; border-radius:0.5rem;">`;
+            ? `<iframe src="${c}" style="width:100%; height:50vh; border:none; border-radius: 0.5rem; background:white;"></iframe>`
+            : `<img src="${c}" style="width:100%; height:auto; max-height: 60vh; object-fit:contain; border-radius: 0.5rem; background:white;">`;
             
         certHtml = `
         <div class="d-flex justify-content-between align-items-center">
@@ -374,18 +374,19 @@ window.mostrarPerfilPublico = function(tipo, index) {
             </button>
         </div>
         <div id="${collapseId}" class="d-none mt-3 text-center module-fade-in p-2 rounded" style="background: var(--input-bg); border: 1px solid var(--input-border);">
-            <img src="${item['perf-emp-sello-input']}" style="max-height:150px; object-fit:contain; border-radius:0.5rem;">
+            <img src="${item['perf-emp-sello-input']}" style="width: 100%; height: auto; max-height: 60vh; object-fit: contain; border-radius: 0.5rem; background: white;">
         </div>`;
     }
 
     // 6. APLICAMOS MÁSCARA DE RECORTE INQUEBRANTABLE AL CÍRCULO DEL PERFIL COMPLETO (130px)
+    const defaultIcon = isOp ? 'bi-person-walking' : 'bi-shop';
     const logoImg = (logo && (logo.startsWith('data:image') || logo.includes('/'))) ? logo : '';
     const logoEl = logoImg 
         ? `<div class="shadow-sm mx-auto d-block mt-3 mb-3" style="width: 130px; height: 130px; min-width: 130px; min-height: 130px; border-radius: 50%; border: 4px solid var(--teal-light); background: var(--white); overflow: hidden; display: flex; justify-content: center; align-items: center;">
                <img src="${logoImg}" style="width: 100% !important; height: 100% !important; min-width: 100% !important; min-height: 100% !important; object-fit: cover !important; border-radius: 50% !important; display: block !important; margin: 0 !important; padding: 0 !important;">
            </div>`
         : `<div class="shadow-sm d-flex align-items-center justify-content-center mx-auto d-block mt-3 mb-3 text-white" style="width: 130px; height: 130px; min-width: 130px; min-height: 130px; border-radius: 50%; background: var(--teal-main); border: 4px solid var(--teal-light);">
-               <i class="bi bi-person-walking" style="font-size: 4rem;"></i>
+               <i class="bi ${defaultIcon}" style="font-size: 4rem;"></i>
            </div>`;
 
     // 7. INYECTAR Y MOSTRAR COMO HOJA COMPLETA (FULL PAGE)

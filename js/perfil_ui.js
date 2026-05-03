@@ -79,15 +79,25 @@ window.renderEditModeState = function() {
                 
                 const fileData = window.currentProfileData[id];
                 if (fileData) {
+                    const isDocument = (id === 'perf-g-cert' || id === 'perf-emp-sello-input');
+                    
                     if (fileData.startsWith('data:application/pdf')) {
                         preview.innerHTML = `<iframe src="${fileData}" style="width:100%; height:120px; border:1px solid var(--input-border); border-radius:0.5rem; background:white;"></iframe>`;
                         preview.onclick = null; // Los PDF no se re-editan visualmente
+                    } else if (isDocument) {
+                        // VISTA PREVIA PARA CERTIFICADOS: Respeta 100% la proporción original sin forzar a cuadrado
+                        preview.innerHTML = `
+                            <div class="position-relative d-inline-block">
+                                <img src="${fileData}" style="max-height: 120px; max-width:100%; border-radius: 0.5rem; object-fit: contain; border: 1px solid var(--input-border); padding:2px; background: white;">
+                            </div>
+                        `;
+                        preview.onclick = null; // Los documentos no se recortan
                     } else {
-                        // Inyectamos la imagen con un indicador de lápiz para invitar al clic
+                        // VISTA PREVIA PARA LOGOS: Se muestran redondos y permiten re-editar (crop cuadrado)
                         preview.innerHTML = `
                             <div class="position-relative d-inline-block" style="cursor: pointer;" title="Haz clic para reajustar imagen">
-                                <img src="${fileData}" style="max-height: 80px; max-width:100%; border-radius: 0.5rem; object-fit: contain; border: 1px solid var(--input-border); padding:2px; background: white;">
-                                <div class="position-absolute bottom-0 end-0 bg-teal text-white rounded-circle d-flex align-items-center justify-content-center shadow" style="width: 24px; height: 24px; transform: translate(25%, 25%);">
+                                <img src="${fileData}" style="width: 85px; height: 85px; border-radius: 50%; object-fit: cover; border: 2px solid var(--input-border); padding:2px; background: white;">
+                                <div class="position-absolute bottom-0 end-0 bg-teal text-white rounded-circle d-flex align-items-center justify-content-center shadow" style="width: 24px; height: 24px; transform: translate(10%, 10%);">
                                     <i class="bi bi-pencil-fill" style="font-size: 0.7rem;"></i>
                                 </div>
                             </div>
@@ -155,15 +165,17 @@ window.renderEditModeState = function() {
                         const file = e.target.files[0];
                         if (!file) return;
 
-                        // Si es imagen y tenemos el editor disponible
-                        if (file.type.startsWith('image/') && window.ImageEditor) {
+                        const isDocument = (id === 'perf-g-cert' || id === 'perf-emp-sello-input');
+
+                        // Si es imagen, NO es certificado y tenemos el editor disponible (Usa herramienta de Crop Cuadrado)
+                        if (file.type.startsWith('image/') && window.ImageEditor && !isDocument) {
                             window.ImageEditor.open(file, (finalBase64) => {
                                 window.currentProfileData[id] = finalBase64;
                                 input.value = ""; // Limpiar el input file
                                 window.renderEditModeState(); // Recargar previas
                             });
                         } else {
-                            // Si es PDF o no existe el editor, pasamos por el conversor estándar
+                            // Si es PDF o CERTIFICADO (Se salta el editor y usa su tamaño original)
                             if(typeof window.getBase64 === 'function') {
                                 window.getBase64(file).then(b64 => {
                                     window.currentProfileData[id] = b64;

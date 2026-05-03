@@ -40,6 +40,7 @@ window.templates.home = `
                 </div>
             </div>
             
+            <!-- Card 3: Rutas -->
             <div class="col-6">
                 <div class="folder-card h-100 d-flex flex-column align-items-center justify-content-center text-center py-4 px-2" style="cursor:pointer;" onclick="window.showSysAlert('info', 'Rutas', 'Próximamente disponible.')">
                     <div class="squircle bg-cat-orange mb-3 mx-auto"><i class="bi bi-map"></i></div>
@@ -49,7 +50,30 @@ window.templates.home = `
                     </div>
                 </div>
             </div>
+
+            <!-- Card 4: Autoguiado -->
+            <div class="col-6">
+                <div class="folder-card h-100 d-flex flex-column align-items-center justify-content-center text-center py-4 px-2" style="cursor:pointer;" onclick="window.showSysAlert('info', 'Autoguiado', 'Próximamente disponible.')">
+                    <div class="squircle mb-3 mx-auto" style="background-color: #48bb78;"><i class="bi bi-compass"></i></div>
+                    <div>
+                        <h6 class="fw-bold mb-1 text-wrap" style="font-size: 0.95rem; line-height: 1.2;">Autoguiado</h6>
+                        <small class="fw-bold d-block" style="color: #48bb78; font-size: 0.8rem;">Próximamente</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 5: Donación -->
+            <div class="col-6">
+                <div class="folder-card h-100 d-flex flex-column align-items-center justify-content-center text-center py-4 px-2" style="cursor:pointer;" onclick="window.showSysAlert('info', 'Donación', 'Próximamente disponible.')">
+                    <div class="squircle mb-3 mx-auto" style="background-color: #f56565;"><i class="bi bi-heart-fill"></i></div>
+                    <div>
+                        <h6 class="fw-bold mb-1 text-wrap" style="font-size: 0.95rem; line-height: 1.2;">Donación</h6>
+                        <small class="fw-bold d-block" style="color: #f56565; font-size: 0.8rem;">Próximamente</small>
+                    </div>
+                </div>
+            </div>
             
+            <!-- Card 6: Otros -->
             <div class="col-6">
                 <div class="folder-card h-100 d-flex flex-column align-items-center justify-content-center text-center py-4 px-2" style="cursor:pointer;" onclick="window.showSysAlert('info', 'Otros', 'Próximamente disponible.')">
                     <div class="squircle bg-cat-pink mb-3 mx-auto"><i class="bi bi-grid-fill"></i></div>
@@ -67,28 +91,31 @@ window.templates.home = `
 // --- VISTA: DIRECTORIO TOUR OPERADORES ---
 window.templates.tour_operadores = `
     <div class="module-fade-in pb-5">
-        <header class="top-bar mb-2">
-            <a href="#home" class="btn-circle text-decoration-none shadow-sm"><i class="bi bi-arrow-left fs-5"></i></a>
+        <header class="top-bar mb-2 d-flex align-items-center px-3 pt-3">
+            <a href="#home" class="btn-circle text-decoration-none shadow-sm flex-shrink-0"><i class="bi bi-arrow-left fs-5"></i></a>
         </header>
         
-        <div class="mb-3 mt-2 px-2 d-flex justify-content-between align-items-center">
-            <h5 class="fw-bold mb-0" style="color: var(--text-dark);">Tour Operadores Afiliados</h5>
-            <!-- BOTONES DE VISTA -->
-            <div class="d-flex shadow-sm" style="border-radius: 0.8rem; overflow: hidden; border: 1px solid var(--input-border); background: var(--input-bg);">
-                <button id="btn-grid-operadores" class="btn btn-sm px-3 py-1" style="background: var(--teal-main); color: white; border-radius: 0;" onclick="if(window.cambiarVistaDirectorio) window.cambiarVistaDirectorio('operadores', 'grid')"><i class="bi bi-grid-fill fs-6"></i></button>
-                <button id="btn-list-operadores" class="btn btn-sm px-3 py-1" style="background: transparent; color: var(--text-muted); border-radius: 0;" onclick="if(window.cambiarVistaDirectorio) window.cambiarVistaDirectorio('operadores', 'list')"><i class="bi bi-list-ul fs-6"></i></button>
+        <!-- DISEÑO LIMPIO: Botones arriba, título abajo con espacio total -->
+        <div class="px-3 mb-3 mt-1">
+            <div class="d-flex justify-content-end mb-2">
+                <!-- BOTONES DE VISTA -->
+                <div class="d-flex shadow-sm" style="border-radius: 0.8rem; overflow: hidden; border: 1px solid var(--input-border); background: var(--input-bg);">
+                    <button id="btn-grid-operadores" class="btn btn-sm px-3 py-1" style="background: var(--teal-main); color: white; border-radius: 0;" onclick="if(window.cambiarVistaDirectorio) window.cambiarVistaDirectorio('operadores', 'grid')"><i class="bi bi-grid-fill fs-6"></i></button>
+                    <button id="btn-list-operadores" class="btn btn-sm px-3 py-1" style="background: transparent; color: var(--text-muted); border-radius: 0;" onclick="if(window.cambiarVistaDirectorio) window.cambiarVistaDirectorio('operadores', 'list')"><i class="bi bi-list-ul fs-6"></i></button>
+                </div>
             </div>
+            <h4 class="fw-bold mb-0" style="color: var(--text-dark);">Tour Operadores Afiliados</h4>
         </div>
 
         <!-- BUSCADOR EN TIEMPO REAL -->
-        <div class="px-2 mb-4">
+        <div class="px-3 mb-4">
             <div class="position-relative">
                 <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3" style="color: var(--text-muted); z-index: 10;"></i>
                 <input type="text" id="search-operadores" class="form-control custom-input shadow-sm ps-5" placeholder="Buscar por nombre, tel, idiomas..." oninput="if(window.filtrarDirectorio) window.filtrarDirectorio('operadores', this.value)" style="background-color: var(--input-bg) !important; color: var(--text-dark) !important; border-color: var(--input-border) !important;">
             </div>
         </div>
 
-        <div id="grid-tour-operadores" class="grid-afiliados">
+        <div id="grid-tour-operadores" class="grid-afiliados px-2">
             <div style="grid-column: 1 / -1;" class="text-center w-100 py-5">
                 <span class="spinner-border text-teal mb-2"></span><br>
                 <small class="fw-bold text-muted">Cargando directorio...</small>
@@ -100,28 +127,31 @@ window.templates.tour_operadores = `
 // --- VISTA: DIRECTORIO EMPRENDIMIENTOS ---
 window.templates.emprendimientos = `
     <div class="module-fade-in pb-5">
-        <header class="top-bar mb-2">
-            <a href="#home" class="btn-circle text-decoration-none shadow-sm"><i class="bi bi-arrow-left fs-5"></i></a>
+        <header class="top-bar mb-2 d-flex align-items-center px-3 pt-3">
+            <a href="#home" class="btn-circle text-decoration-none shadow-sm flex-shrink-0"><i class="bi bi-arrow-left fs-5"></i></a>
         </header>
 
-        <div class="mb-3 mt-2 px-2 d-flex justify-content-between align-items-center">
-            <h5 class="fw-bold mb-0" style="color: var(--text-dark);">Emprendimientos Afiliados</h5>
-            <!-- BOTONES DE VISTA -->
-            <div class="d-flex shadow-sm" style="border-radius: 0.8rem; overflow: hidden; border: 1px solid var(--input-border); background: var(--input-bg);">
-                <button id="btn-grid-emprendimientos" class="btn btn-sm px-3 py-1" style="background: var(--teal-main); color: white; border-radius: 0;" onclick="if(window.cambiarVistaDirectorio) window.cambiarVistaDirectorio('emprendimientos', 'grid')"><i class="bi bi-grid-fill fs-6"></i></button>
-                <button id="btn-list-emprendimientos" class="btn btn-sm px-3 py-1" style="background: transparent; color: var(--text-muted); border-radius: 0;" onclick="if(window.cambiarVistaDirectorio) window.cambiarVistaDirectorio('emprendimientos', 'list')"><i class="bi bi-list-ul fs-6"></i></button>
+        <!-- DISEÑO LIMPIO: Botones arriba, título abajo con espacio total -->
+        <div class="px-3 mb-3 mt-1">
+            <div class="d-flex justify-content-end mb-2">
+                <!-- BOTONES DE VISTA -->
+                <div class="d-flex shadow-sm" style="border-radius: 0.8rem; overflow: hidden; border: 1px solid var(--input-border); background: var(--input-bg);">
+                    <button id="btn-grid-emprendimientos" class="btn btn-sm px-3 py-1" style="background: var(--teal-main); color: white; border-radius: 0;" onclick="if(window.cambiarVistaDirectorio) window.cambiarVistaDirectorio('emprendimientos', 'grid')"><i class="bi bi-grid-fill fs-6"></i></button>
+                    <button id="btn-list-emprendimientos" class="btn btn-sm px-3 py-1" style="background: transparent; color: var(--text-muted); border-radius: 0;" onclick="if(window.cambiarVistaDirectorio) window.cambiarVistaDirectorio('emprendimientos', 'list')"><i class="bi bi-list-ul fs-6"></i></button>
+                </div>
             </div>
+            <h4 class="fw-bold mb-0" style="color: var(--text-dark);">Emprendimientos Afiliados</h4>
         </div>
 
         <!-- BUSCADOR EN TIEMPO REAL -->
-        <div class="px-2 mb-4">
+        <div class="px-3 mb-4">
             <div class="position-relative">
                 <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3" style="color: var(--text-muted); z-index: 10;"></i>
                 <input type="text" id="search-emprendimientos" class="form-control custom-input shadow-sm ps-5" placeholder="Buscar por nombre, servicio, contacto..." oninput="if(window.filtrarDirectorio) window.filtrarDirectorio('emprendimientos', this.value)" style="background-color: var(--input-bg) !important; color: var(--text-dark) !important; border-color: var(--input-border) !important;">
             </div>
         </div>
 
-        <div id="grid-emprendimientos" class="grid-afiliados">
+        <div id="grid-emprendimientos" class="grid-afiliados px-2">
             <div style="grid-column: 1 / -1;" class="text-center w-100 py-5">
                 <span class="spinner-border text-teal mb-2"></span><br>
                 <small class="fw-bold text-muted">Cargando directorio...</small>
