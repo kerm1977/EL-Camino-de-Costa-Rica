@@ -164,7 +164,7 @@ window.handleRegister = async function(e) {
             };
 
             // Mapeo Activadores (Redes sociales)
-            const redes = ['WhatsApp', 'Signal', 'Email', 'Facebook', 'Instagram', 'TikTok', 'Telegram', 'URL Waze', 'URL Google Maps'];
+            const redes = ['WhatsApp', 'Signal', 'Email', 'Facebook', 'Instagram', 'TikTok', 'Telegram', 'URL Waze', 'URL Google Maps', 'Página Web'];
             redes.forEach((red, i) => {
                 profileData[`perf-g-act-${i}`] = document.getElementById(`reg-g-act-${i}`)?.checked || false;
                 profileData[`perf-g-act-${i}-input`] = document.getElementById(`reg-g-act-${i}-input`)?.value || '';

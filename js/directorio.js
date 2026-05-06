@@ -253,14 +253,15 @@ window.mostrarPerfilPublico = function(tipo, index) {
         </div>`;
     }
 
-    // 2. CONSTRUIR REDES SOCIALES Y ENLACES (Activadores)
+    // 2. CONSTRUIR REDES SOCIALES Y ENLACES (Activadores - AHORA CON PÁGINA WEB INCLUIDA)
     const prefix = isOp ? 'perf-g' : 'perf-e';
-    const redesNombres = ['WhatsApp', 'Signal', 'Email', 'Facebook', 'Instagram', 'TikTok', 'Telegram', 'URL Waze', 'URL Google Maps'];
-    const redesIconos = ['bi-whatsapp', 'bi-chat-dots', 'bi-envelope', 'bi-facebook', 'bi-instagram', 'bi-tiktok', 'bi-telegram', 'bi-cone-striped', 'bi-geo-alt'];
-    const redesColores = ['#25D366', '#3A76F0', '#ea4335', '#1877F2', '#E1306C', '#000000', '#0088cc', '#33ccff', '#34a853'];
+    const redesNombres = ['WhatsApp', 'Signal', 'Email', 'Facebook', 'Instagram', 'TikTok', 'Telegram', 'URL Waze', 'URL Google Maps', 'Página Web'];
+    const redesIconos = ['bi-whatsapp', 'bi-chat-dots', 'bi-envelope', 'bi-facebook', 'bi-instagram', 'bi-tiktok', 'bi-telegram', 'bi-cone-striped', 'bi-geo-alt', 'bi-globe'];
+    const redesColores = ['#25D366', '#3A76F0', '#ea4335', '#1877F2', '#E1306C', '#000000', '#0088cc', '#33ccff', '#34a853', '#4a5568'];
     
     let redesHtml = '';
-    for(let i=0; i<9; i++) {
+    // AHORA EL BUCLE RECORRE LAS 10 REDES SOCIALES
+    for(let i=0; i<redesNombres.length; i++) {
         // Ignoramos el WhatsApp secundario para dejar solo el CTA principal
         if (i === 0) continue; 
 
@@ -274,7 +275,7 @@ window.mostrarPerfilPublico = function(tipo, index) {
                 url = `https://signal.me/#p/+${cPhone}`;
             } else if (i === 2) { // Email
                 url = `mailto:${val}`;
-            } else { // Web, FB, Insta...
+            } else { // Web, FB, Insta, Página Web...
                 if(!url.startsWith('http')) url = `https://${url}`;
             }
 

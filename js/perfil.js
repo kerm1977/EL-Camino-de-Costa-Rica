@@ -55,15 +55,32 @@ window.updateProfileCardView = function() {
         }
     }
 
-    // Helper: Generador de Activadores
+    // Helper: Generador de Activadores (Mejorado para hacer clic y añadir Web)
     const renderActivadores = (prefix) => {
-        const redesNombres = ['WhatsApp', 'Signal', 'Email', 'Facebook', 'Instagram', 'TikTok', 'Telegram', 'Waze', 'Google Maps'];
-        const redesIconos = ['bi-whatsapp', 'bi-chat-dots', 'bi-envelope', 'bi-facebook', 'bi-instagram', 'bi-tiktok', 'bi-telegram', 'bi-cone-striped', 'bi-geo-alt'];
-        const redesColores = ['#25D366', '#3A76F0', '#ea4335', '#1877F2', '#E1306C', '#000000', '#0088cc', '#33ccff', '#34a853'];
+        const redesNombres = ['WhatsApp', 'Signal', 'Email', 'Facebook', 'Instagram', 'TikTok', 'Telegram', 'Waze', 'Google Maps', 'Página Web'];
+        const redesIconos = ['bi-whatsapp', 'bi-chat-dots', 'bi-envelope', 'bi-facebook', 'bi-instagram', 'bi-tiktok', 'bi-telegram', 'bi-cone-striped', 'bi-geo-alt', 'bi-globe'];
+        const redesColores = ['#25D366', '#3A76F0', '#ea4335', '#1877F2', '#E1306C', '#000000', '#0088cc', '#33ccff', '#34a853', '#4a5568'];
         let html = '';
-        for(let i=0; i<9; i++) {
+        for(let i=0; i<redesNombres.length; i++) {
             if(data[`${prefix}-act-${i}`] && data[`${prefix}-act-${i}-input`]) {
-                html += `<div class="d-flex align-items-center mb-2"><i class="bi ${redesIconos[i]} me-2" style="color: ${redesColores[i]}; font-size: 1.1rem;"></i><span class="small text-break" style="color: var(--text-dark);">${data[`${prefix}-act-${i}-input`]}</span></div>`;
+                let url = data[`${prefix}-act-${i}-input`];
+                let href = url;
+                
+                if (i === 1) { // Signal
+                    let cPhone = url.replace(/\D/g, '');
+                    if(!cPhone.startsWith('506') && cPhone.length >= 8) cPhone = '506' + cPhone;
+                    href = `https://signal.me/#p/+${cPhone}`;
+                } else if (i === 2) { // Email
+                    href = `mailto:${url}`;
+                } else if (i === 0) { // Whatsapp
+                    let cPhone = url.replace(/\D/g, '');
+                    if(!cPhone.startsWith('506') && cPhone.length >= 8) cPhone = '506' + cPhone;
+                    href = `https://wa.me/${cPhone}`;
+                } else {
+                    if(!href.startsWith('http')) href = `https://${href}`;
+                }
+
+                html += `<a href="${href}" target="_blank" class="d-flex align-items-center mb-2 text-decoration-none"><i class="bi ${redesIconos[i]} me-2" style="color: ${redesColores[i]}; font-size: 1.1rem;"></i><span class="small text-break text-teal fw-bold">${url}</span></a>`;
             }
         }
         return html ? `<div class="mt-3 pt-2 border-top"><h6 class="fw-bold small mb-2" style="color: var(--text-dark); opacity: 0.8;">Enlaces y Redes</h6>${html}</div>` : '';

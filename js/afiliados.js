@@ -42,7 +42,7 @@ window.handleMutuallyExclusiveToggle = function(currentSwitchId, otherSwitchId, 
 };
 
 window.generarActivadoresHTML = function(prefix) {
-    const redes = ['WhatsApp', 'Signal', 'Email', 'Facebook', 'Instagram', 'TikTok', 'Telegram', 'URL Waze', 'URL Google Maps'];
+    const redes = ['WhatsApp', 'Signal', 'Email', 'Facebook', 'Instagram', 'TikTok', 'Telegram', 'URL Waze', 'URL Google Maps', 'Página Web'];
     let html = '';
     redes.forEach((red, i) => {
         const id = `${prefix}-act-${i}`;

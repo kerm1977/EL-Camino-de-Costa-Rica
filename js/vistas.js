@@ -3,13 +3,45 @@
 // Archivo: js/vistas.js
 // ==========================================
 
+// Inyectar efecto Blur (Glassmorphism) a las barras
+if (!document.getElementById('blur-bars-style')) {
+    const style = document.createElement('style');
+    style.id = 'blur-bars-style';
+    style.innerHTML = `
+        /* Barra Superior */
+        .top-bar {
+            background: rgba(244, 247, 252, 0.75) !important;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(142, 155, 176, 0.1);
+        }
+        body.dark-theme .top-bar {
+            background: rgba(26, 32, 44, 0.75) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Barra Inferior (Navegación) */
+        .bottom-nav {
+            background: rgba(255, 255, 255, 0.85) !important;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-top: 1px solid rgba(142, 155, 176, 0.1);
+        }
+        body.dark-theme .bottom-nav {
+            background: rgba(45, 55, 72, 0.85) !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    `;
+    document.head.appendChild(style);
+}
+
 window.templates = window.templates || {};
 
 // --- 1. VISTA HOME ---
 window.templates.home = `
-    <div class="module-fade-in" style="padding-top: 30px; padding-bottom: 50px;">
-        <header class="text-center mb-4 mt-2">
-            <h3 class="fw-bold" style="color: var(--text-dark);">Inicio</h3>
+    <div class="module-fade-in" style="padding-top: 65px; padding-bottom: 50px;">
+        <header class="text-center mb-4 px-3">
+            <h4 class="fw-bold mb-0" style="color: var(--text-dark); line-height: 1.4;">El Camino de Costa Rica</h4>
         </header>
 
         <div class="row g-4 px-2">
@@ -62,13 +94,13 @@ window.templates.home = `
                 </div>
             </div>
 
-            <!-- Card 5: Donación -->
+            <!-- Card 5: Donación (AHORA ENLAZA A DONACIONES) -->
             <div class="col-6">
-                <div class="folder-card h-100 d-flex flex-column align-items-center justify-content-center text-center py-4 px-2" style="cursor:pointer;" onclick="window.showSysAlert('info', 'Donación', 'Próximamente disponible.')">
+                <div class="folder-card h-100 d-flex flex-column align-items-center justify-content-center text-center py-4 px-2" style="cursor:pointer;" onclick="window.location.hash='donaciones'">
                     <div class="squircle mb-3 mx-auto" style="background-color: #f56565;"><i class="bi bi-heart-fill"></i></div>
                     <div>
                         <h6 class="fw-bold mb-1 text-wrap" style="font-size: 0.95rem; line-height: 1.2;">Donación</h6>
-                        <small class="fw-bold d-block" style="color: #f56565; font-size: 0.8rem;">Próximamente</small>
+                        <small class="fw-bold d-block" style="color: #f56565; font-size: 0.8rem;">Apoya nuestro trabajo</small>
                     </div>
                 </div>
             </div>
@@ -92,12 +124,12 @@ window.templates.home = `
 window.templates.tour_operadores = `
     <div class="module-fade-in pb-5">
         <header class="top-bar mb-2 d-flex align-items-center px-3 pt-3">
-            <a href="#home" class="btn-circle text-decoration-none shadow-sm flex-shrink-0"><i class="bi bi-arrow-left fs-5"></i></a>
+            <a href="#home" class="btn-circle text-decoration-none shadow-sm flex-shrink-0 me-3"><i class="bi bi-arrow-left fs-5"></i></a>
         </header>
         
         <!-- DISEÑO LIMPIO: Botones arriba, título abajo con espacio total -->
-        <div class="px-3 mb-3 mt-1">
-            <div class="d-flex justify-content-end mb-2">
+        <div class="px-3 mb-3 mt-2">
+            <div class="d-flex justify-content-end mb-3">
                 <!-- BOTONES DE VISTA -->
                 <div class="d-flex shadow-sm" style="border-radius: 0.8rem; overflow: hidden; border: 1px solid var(--input-border); background: var(--input-bg);">
                     <button id="btn-grid-operadores" class="btn btn-sm px-3 py-1" style="background: var(--teal-main); color: white; border-radius: 0;" onclick="if(window.cambiarVistaDirectorio) window.cambiarVistaDirectorio('operadores', 'grid')"><i class="bi bi-grid-fill fs-6"></i></button>
@@ -128,12 +160,12 @@ window.templates.tour_operadores = `
 window.templates.emprendimientos = `
     <div class="module-fade-in pb-5">
         <header class="top-bar mb-2 d-flex align-items-center px-3 pt-3">
-            <a href="#home" class="btn-circle text-decoration-none shadow-sm flex-shrink-0"><i class="bi bi-arrow-left fs-5"></i></a>
+            <a href="#home" class="btn-circle text-decoration-none shadow-sm flex-shrink-0 me-3"><i class="bi bi-arrow-left fs-5"></i></a>
         </header>
 
         <!-- DISEÑO LIMPIO: Botones arriba, título abajo con espacio total -->
-        <div class="px-3 mb-3 mt-1">
-            <div class="d-flex justify-content-end mb-2">
+        <div class="px-3 mb-3 mt-2">
+            <div class="d-flex justify-content-end mb-3">
                 <!-- BOTONES DE VISTA -->
                 <div class="d-flex shadow-sm" style="border-radius: 0.8rem; overflow: hidden; border: 1px solid var(--input-border); background: var(--input-bg);">
                     <button id="btn-grid-emprendimientos" class="btn btn-sm px-3 py-1" style="background: var(--teal-main); color: white; border-radius: 0;" onclick="if(window.cambiarVistaDirectorio) window.cambiarVistaDirectorio('emprendimientos', 'grid')"><i class="bi bi-grid-fill fs-6"></i></button>
@@ -163,7 +195,7 @@ window.templates.emprendimientos = `
 // --- VISTA FOLDER ---
 window.templates.folder = `
     <div class="module-fade-in pb-4">
-        <header class="top-bar d-flex justify-content-between align-items-center mb-3">
+        <header class="top-bar d-flex justify-content-between align-items-center mb-3 px-3 pt-3">
             <button class="btn-circle"><i class="bi bi-list fs-5"></i></button>
             <h5 class="mb-0 fw-bold">Folder</h5>
             <button class="btn-circle"><i class="bi bi-search fs-5"></i></button>
@@ -178,16 +210,16 @@ window.templates.folder = `
 // --- VISTA OVERVIEW ---
 window.templates.overview = `
     <div class="module-fade-in pb-4">
-        <header class="top-bar mb-2">
+        <header class="top-bar mb-2 px-3 pt-3 d-flex justify-content-between align-items-center">
             <a href="#home" class="btn-circle text-decoration-none shadow-sm"><i class="bi bi-arrow-left fs-5"></i></a>
         </header>
         
-        <div class="mb-4 mt-2 px-2 d-flex justify-content-between align-items-center">
+        <div class="mb-4 mt-2 px-3 d-flex justify-content-between align-items-center">
             <h4 class="fw-bold mb-0" style="color: var(--text-dark);">Overview</h4>
             <button class="btn-circle shadow-sm"><i class="bi bi-three-dots fs-5"></i></button>
         </div>
 
-        <div class="storage-card p-4 mb-4 text-center">
+        <div class="storage-card p-4 mx-3 mb-4 text-center">
             <h6 class="mb-4">Available Storage</h6>
             <div class="progress-circle mx-auto mb-4" style="width: 120px; height: 120px;"><span style="font-size: 1.5rem;">80%</span></div>
             <div class="d-flex justify-content-around">

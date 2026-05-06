@@ -2,32 +2,38 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
 
 :root {
-    --bg-color: #f4f7fc; --teal-main: #38b2ac; --teal-light: #4fd1c5;
-    --text-dark: #1a202c; --text-muted: #a0aec0; --white: #ffffff;
-    --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
-    --cat-purple: #667eea; --cat-blue: #4299e1; --cat-orange: #ed8936; --cat-pink: #ed64a6;
-    
-    /* Nuevas variables para los inputs y placeholders */
-    --input-bg: #eef2f7;
-    --input-border: #8e9bb0; /* Color gris ratón */
+--bg-color: #f4f7fc; --teal-main: #38b2ac; --teal-light: #4fd1c5;
+--text-dark: #1a202c; --text-muted: #a0aec0; --white: #ffffff;
+--card-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+--cat-purple: #667eea; --cat-blue: #4299e1; --cat-orange: #ed8936; --cat-pink: #ed64a6;
+
+/* Nuevas variables para los inputs y placeholders */
+--input-bg: #eef2f7;
+--input-border: #8e9bb0; /* Color gris ratón */
+
+
 }
 
 /* --- CLASE DE MODO OSCURO --- */
 body.dark-theme {
-    --bg-color: #1a202c;
-    --white: #2d3748;
-    --text-dark: #f4f7fc;
-    --text-muted: #a0aec0;
-    --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    --input-bg: #1a202c;
-    --input-border: #4a5568;
+--bg-color: #1a202c;
+--white: #2d3748;
+--text-dark: #f4f7fc;
+--text-muted: #a0aec0;
+--card-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+--input-bg: #1a202c;
+--input-border: #4a5568;
 }
 
 body {
-    background-color: var(--bg-color); color: var(--text-dark);
-    font-family: 'Nunito', system-ui, sans-serif; min-height: 100vh;
-    margin: 0; padding-bottom: calc(90px + env(safe-area-inset-bottom)); overflow-x: hidden;
+background-color: var(--bg-color); color: var(--text-dark);
+font-family: 'Nunito', system-ui, sans-serif; min-height: 100vh;
+margin: 0; padding-bottom: calc(90px + env(safe-area-inset-bottom)); overflow-x: hidden;
 }
+
+/* OVERRIDES PARA FORZAR A BOOTSTRAP A RESPETAR EL MODO OSCURO */
+.text-dark { color: var(--text-dark) !important; }
+.text-muted { color: var(--text-muted) !important; }
 
 .text-teal { color: var(--teal-main) !important; }
 .bg-teal { background: var(--teal-main) !important; }
@@ -39,9 +45,9 @@ body {
 .bg-cat-pink { background-color: var(--cat-pink) !important; }
 
 .btn-teal {
-    background-color: var(--teal-main); color: white; border-radius: 1rem;
-    padding: 0.8rem; font-weight: 700; border: none;
-    box-shadow: 0 8px 15px rgba(56, 178, 172, 0.3); transition: all 0.3s ease;
+background-color: var(--teal-main); color: white; border-radius: 1rem;
+padding: 0.8rem; font-weight: 700; border: none;
+box-shadow: 0 8px 15px rgba(56, 178, 172, 0.3); transition: all 0.3s ease;
 }
 .btn-teal:hover { background-color: #2c8c87; color: white; transform: translateY(-2px); }
 
@@ -49,37 +55,37 @@ body {
 .btn-danger-custom:hover { background-color: #c53030; color: white; }
 
 .btn-circle {
-    width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center;
-    justify-content: center; background: var(--white); box-shadow: var(--card-shadow);
-    border: none; color: var(--text-dark); transition: transform 0.2s;
+width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center;
+justify-content: center; background: var(--white); box-shadow: var(--card-shadow);
+border: none; color: var(--text-dark); transition: transform 0.2s;
 }
 .btn-circle:active { transform: scale(0.9); }
 
 .top-bar {
-    position: sticky; top: 0; z-index: 1000; padding-top: max(1rem, env(safe-area-inset-top));
-    background: var(--bg-color); padding-bottom: 0.5rem;
+position: sticky; top: 0; z-index: 1000; padding-top: max(1rem, env(safe-area-inset-top));
+background: var(--bg-color); padding-bottom: 0.5rem;
 }
 
-/* Modificamos los inputs para usar el borde gris ratón */
+/* Modificamos los inputs para usar el borde gris ratón y forzar el color de texto dinámico */
 .custom-input, .custom-select {
-    border-radius: 1rem !important; border: 1px solid var(--input-border); background-color: var(--input-bg);
-    padding: 0.8rem 1.2rem; font-weight: 600; color: var(--text-dark); transition: all 0.3s ease; width: 100%;
+border-radius: 1rem !important; border: 1px solid var(--input-border); background-color: var(--input-bg);
+padding: 0.8rem 1.2rem; font-weight: 600; color: var(--text-dark) !important; transition: all 0.3s ease; width: 100%;
 }
 .custom-input:focus, .custom-select:focus { background-color: var(--white); border-color: var(--teal-light); box-shadow: 0 0 0 4px rgba(56, 178, 172, 0.1); outline: none; }
 .custom-input::placeholder { color: var(--input-border); font-weight: 600; }
 
 .input-group > .custom-input { border-top-right-radius: 0 !important; border-bottom-right-radius: 0 !important; border-right: none; }
 .input-group-text.custom-addon {
-    background-color: var(--input-bg); border: 1px solid var(--input-border); border-left: none;
-    border-top-right-radius: 1rem !important; border-bottom-right-radius: 1rem !important;
-    color: var(--text-muted); cursor: pointer; transition: all 0.3s ease;
+background-color: var(--input-bg); border: 1px solid var(--input-border); border-left: none;
+border-top-right-radius: 1rem !important; border-bottom-right-radius: 1rem !important;
+color: var(--text-muted); cursor: pointer; transition: all 0.3s ease;
 }
 .input-group:focus-within .custom-addon { background-color: var(--white); border-color: var(--teal-light); border-left-color: transparent; }
 
 .bottom-nav {
-    position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1030;
-    border-radius: 2rem 2rem 0 0; padding-bottom: env(safe-area-inset-bottom);
-    background: var(--white); box-shadow: 0 -10px 30px rgba(0,0,0,0.05);
+position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1030;
+border-radius: 2rem 2rem 0 0; padding-bottom: env(safe-area-inset-bottom);
+background: var(--white); box-shadow: 0 -10px 30px rgba(0,0,0,0.05);
 }
 .nav-content { display: flex; justify-content: space-between; align-items: center; height: 80px; padding: 0 20px; }
 .nav-item { color: var(--text-muted); text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 20%; height: 100%; cursor: pointer; transition: all 0.3s ease; }
@@ -87,51 +93,53 @@ body {
 
 .nav-link[data-target="home"] { color: var(--cat-purple); opacity: 0.5; }
 .nav-link[data-target="folder"] { color: var(--cat-blue); opacity: 0.5; }
-.nav-link[data-target="overview"] { color: var(--cat-orange); opacity: 0.5; }
+.nav-link[data-target="contactos"] { color: var(--cat-orange); opacity: 0.5; }
 .nav-link[data-target="login"] { color: var(--cat-pink); opacity: 0.5; }
 
 .nav-link.active { opacity: 1; }
 .nav-item.active i { transform: scale(1.2); }
 
-/* --- DISEÑO DEL BOTÓN CENTRAL (FAB) PERFECTAMENTE CENTRADO --- */
+/* --- DISEÑO DEL BOTÓN CENTRAL (FAB) PERFECTAMENTE CENTRADO --- /
 .nav-item.fab-container { position: relative; z-index: 1040; }
 .fab {
-    background: #ffffff !important; /* Siempre blanco puro para que funda perfecto con el logo */
-    width: 85px; height: 85px;
-    min-width: 85px; min-height: 85px;
-    border-radius: 50%;
-    
-    /* Flexbox para centrado matemático */
-    display: flex; align-items: center; justify-content: center;
-    
-    transition: transform 0.2s ease; 
-    margin-top: -35px;
-    
-    /* Bordes y Sombreado */
-    border: 3px solid var(--cat-orange);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.15); /* Sombra suave para darle volumen */
-    
-    flex-shrink: 0; 
-    box-sizing: border-box; /* El padding se descuenta del width/height para que no se ovalice */
-    padding: 3px; /* Pequeño respiro entre el borde naranja y la imagen */
-    overflow: hidden;
+background: #ffffff !important; / Siempre blanco puro para que funda perfecto con el logo */
+width: 85px; height: 85px;
+min-width: 85px; min-height: 85px;
+border-radius: 50%;
+
+/* Flexbox para centrado matemático */
+display: flex; align-items: center; justify-content: center;
+
+transition: transform 0.2s ease; 
+margin-top: -35px;
+
+/* Bordes y Sombreado */
+border: 3px solid var(--cat-orange);
+box-shadow: 0 5px 15px rgba(0,0,0,0.15); /* Sombra suave para darle volumen */
+
+flex-shrink: 0; 
+box-sizing: border-box; /* El padding se descuenta del width/height para que no se ovalice */
+padding: 3px; /* Pequeño respiro entre el borde naranja y la imagen */
+overflow: hidden;
+
+
 }
 .fab:active { transform: scale(0.9); }
 
-/* Centrado absoluto de la imagen usando Flexbox automático del padre */
+/* Centrado absoluto de la imagen usando Flexbox automático del padre /
 .fab img {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: contain !important; /* 'contain' encaja la imagen sin cortar bordes */
-    border-radius: 50%; /* La imagen en sí también hereda la curvatura */
-    display: block;
-    margin: auto;
+width: 100% !important;
+height: 100% !important;
+object-fit: contain !important; / 'contain' encaja la imagen sin cortar bordes /
+border-radius: 50%; / La imagen en sí también hereda la curvatura */
+display: block;
+margin: auto;
 }
 
 .storage-card {
-    background: linear-gradient(135deg, var(--teal-light), var(--teal-main));
-    border-radius: 1.5rem; color: white; box-shadow: 0 15px 25px rgba(56, 178, 172, 0.3);
-    position: relative; overflow: hidden;
+background: linear-gradient(135deg, var(--teal-light), var(--teal-main));
+border-radius: 1.5rem; color: white; box-shadow: 0 15px 25px rgba(56, 178, 172, 0.3);
+position: relative; overflow: hidden;
 }
 .storage-card::before { content: ''; position: absolute; top: -50%; right: -20%; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%; }
 .progress-circle { width: 70px; height: 70px; border-radius: 50%; background: conic-gradient(white 80%, rgba(255,255,255,0.3) 0); display: flex; align-items: center; justify-content: center; position: relative; }
@@ -142,21 +150,22 @@ body {
 .folder-card:active { transform: scale(0.95); }
 
 .squircle {
-    width: 60px; 
-    height: 60px; 
-    border-radius: 18px; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    color: white; 
-    font-size: 1.8rem; 
-    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-    flex-shrink: 0;
+width: 60px;
+height: 60px;
+border-radius: 18px;
+display: flex;
+align-items: center;
+justify-content: center;
+color: white;
+font-size: 1.8rem;
+box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+flex-shrink: 0;
 }
 
-.modal-content { border-radius: 1.5rem; border: none; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
-.modal-header { border-bottom: 1px solid #eef2f7; }
-.modal-footer { border-top: 1px solid #eef2f7; }
+.modal-content { border-radius: 1.5rem; border: none; box-shadow: 0 20px 40px rgba(0,0,0,0.1); background-color: var(--white); }
+.modal-header { border-bottom: 1px solid var(--input-border); }
+.modal-footer { border-top: 1px solid var(--input-border); }
+.modal-title { color: var(--text-dark); }
 
 .card-perfil { background: var(--white); border-radius: 1.5rem; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--card-shadow); }
 .form-switch .form-check-input { width: 3em; height: 1.5em; cursor: pointer; }
@@ -164,146 +173,148 @@ body {
 
 .module-fade-in { animation: fadeInModule 0.3s ease forwards; }
 @keyframes fadeInModule {
-    from { opacity: 0; transform: translateY(15px); }
-    to { opacity: 1; transform: translateY(0); }
+from { opacity: 0; transform: translateY(15px); }
+to { opacity: 1; transform: translateY(0); }
 }
 
 /* --- ESTILOS MODO LECTURA PARA EL PERFIL --- */
 .profile-input[readonly], .profile-input[disabled] {
-    background-color: transparent !important;
-    border-color: transparent !important;
-    padding-left: 0;
-    padding-right: 0;
-    font-weight: 800;
-    color: var(--text-dark) !important;
-    box-shadow: none !important;
-    appearance: none;
-    -webkit-appearance: none;
+background-color: transparent !important;
+border-color: transparent !important;
+padding-left: 0;
+padding-right: 0;
+font-weight: 800;
+color: var(--text-dark) !important;
+box-shadow: none !important;
+appearance: none;
+-webkit-appearance: none;
 }
 .profile-input[readonly]::placeholder { color: transparent !important; }
 .profile-input[type="file"][disabled] { display: none !important; }
 
 /* ==========================================
-   GRILLA DINÁMICA DIRECTORIOS (Tour Op / Emprendimientos)
+GRILLA DINÁMICA DIRECTORIOS (Tour Op / Emprendimientos)
 ========================================== */
 .grid-afiliados {
-    display: grid;
-    gap: 12px;
-    padding: 5px 0;
+display: grid;
+gap: 12px;
+padding: 5px 0;
 }
 
 /* 1. Menos de 300px: 1 tarjeta por fila */
 @media (max-width: 299px) {
-    .grid-afiliados { grid-template-columns: 1fr; }
+.grid-afiliados { grid-template-columns: 1fr; }
 }
 
 /* 2. De 300px hasta 450px: 2 tarjetas por fila exactas */
 @media (min-width: 300px) and (max-width: 450px) {
-    .grid-afiliados { grid-template-columns: repeat(2, 1fr); }
+.grid-afiliados { grid-template-columns: repeat(2, 1fr); }
 }
 
 /* 3. Vistas mayores a 450px: Autocompletar fluido (3 o más) */
 @media (min-width: 451px) {
-    .grid-afiliados { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+.grid-afiliados { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
 }
 
 /* Tarjeta individual del Directorio */
 .card-afiliado {
-    background: var(--white);
-    border-radius: 1.2rem;
-    padding: 15px 10px;
-    text-align: center;
-    box-shadow: var(--card-shadow);
-    border: 1px solid var(--input-border);
-    transition: transform 0.2s, box-shadow 0.2s;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    cursor: pointer;
+background: var(--white);
+border-radius: 1.2rem;
+padding: 15px 10px;
+text-align: center;
+box-shadow: var(--card-shadow);
+border: 1px solid var(--input-border);
+transition: transform 0.2s, box-shadow 0.2s;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: flex-start;
+cursor: pointer;
 }
 .card-afiliado:active { transform: scale(0.95); }
 
-/* LOGO DEL DIRECTORIO - Círculo perfecto blindado contra flexbox */
+/* LOGO DEL DIRECTORIO - Círculo perfecto blindado contra flexbox /
 .card-afiliado-img {
-    width: 65px;
-    height: 65px;
-    min-width: 65px; /* Forzar el ancho */
-    min-height: 65px; /* Forzar el alto */
-    flex-shrink: 0; /* Evita que se aplaste (se vuelva óvalo) */
-    box-sizing: border-box;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-bottom: 12px;
-    border: 3px solid var(--teal-light);
-    background: var(--bg-color);
-    padding: 2px;
+width: 65px;
+height: 65px;
+min-width: 65px; / Forzar el ancho /
+min-height: 65px; / Forzar el alto /
+flex-shrink: 0; / Evita que se aplaste (se vuelva óvalo) */
+box-sizing: border-box;
+border-radius: 50%;
+object-fit: cover;
+margin-bottom: 12px;
+border: 3px solid var(--teal-light);
+background: var(--bg-color);
+padding: 2px;
 }
 
 .card-afiliado-title {
-    font-size: 0.80rem;
-    font-weight: 800;
-    color: var(--text-dark);
-    line-height: 1.2;
-    margin-bottom: 8px;
-    width: 100%;
-    display: -webkit-box;
-    -webkit-line-clamp: 2; /* Máximo 2 líneas de texto */
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+font-size: 0.80rem;
+font-weight: 800;
+color: var(--text-dark);
+line-height: 1.2;
+margin-bottom: 8px;
+width: 100%;
+display: -webkit-box;
+-webkit-line-clamp: 2; /* Máximo 2 líneas de texto */
+-webkit-box-orient: vertical;
+overflow: hidden;
 }
 
 .card-afiliado-flags {
-    display: flex;
-    gap: 4px;
-    flex-wrap: wrap;
-    justify-content: center;
-    font-size: 1.1rem;
-    padding-top: 8px;
-    border-top: 1px dashed var(--input-border);
-    width: 100%;
+display: flex;
+gap: 4px;
+flex-wrap: wrap;
+justify-content: center;
+font-size: 1.1rem;
+padding-top: 8px;
+border-top: 1px dashed var(--input-border);
+width: 100%;
 }
 
 /* ==========================================
-   RESPONSIVIDAD FLUIDA PANTALLAS PEQUEÑAS
-   (Escala proporcional debajo de los 400px)
-========================================== */
+RESPONSIVIDAD FLUIDA PANTALLAS PEQUEÑAS
+(Escala proporcional debajo de los 400px)
+========================================== /
 @media (max-width: 400px) {
-    /* Barra de navegación inferior y sus íconos */
-    .nav-content {
-        padding: 0 3vw; 
-    }
-    .nav-item i {
-        font-size: 6vw; /* Proporcional a 1.5rem */
-    }
-    
-    /* El Logo Central (FAB) */
-    .fab {
-        width: 21.25vw;        /* Equivalente a 85px en 400px */
-        height: 21.25vw;
-        min-width: 45px;       /* Tope mínimo para que no desaparezca en pantallas ultra chicas */
-        min-height: 45px;
-        margin-top: -8.75vw;   /* Equivalente a -35px en 400px */
-        border-width: max(2px, 0.75vw); 
-        padding: max(2px, 0.75vw);
-    }
-    
-    /* Iconos de las tarjetas de Home (Squircles) */
-    .squircle {
-        width: 15vw;           /* Equivalente a 60px en 400px */
-        height: 15vw;
-        font-size: 7.2vw;      /* Equivalente a 1.8rem en 400px */
-        border-radius: 4.5vw;  /* Curvatura proporcional */
-    }
-    
-    /* Textos de las tarjetas de Home */
-    .folder-card {
-        padding: 4vw;          /* Ajuste interno proporcional */
-    }
-    .folder-card h6 {
-        font-size: 3.8vw !important; /* Equivalente a ~15px en 400px */
-    }
-    .folder-card small {
-        font-size: 3vw !important;   /* Equivalente a ~12px en 400px */
-    }
+/ Barra de navegación inferior y sus íconos /
+.nav-content {
+padding: 0 3vw;
+}
+.nav-item i {
+font-size: 6vw; / Proporcional a 1.5rem */
+}
+
+/* El Logo Central (FAB) */
+.fab {
+    width: 21.25vw;        /* Equivalente a 85px en 400px */
+    height: 21.25vw;
+    min-width: 45px;       /* Tope mínimo para que no desaparezca en pantallas ultra chicas */
+    min-height: 45px;
+    margin-top: -8.75vw;   /* Equivalente a -35px en 400px */
+    border-width: max(2px, 0.75vw); 
+    padding: max(2px, 0.75vw);
+}
+
+/* Iconos de las tarjetas de Home (Squircles) */
+.squircle {
+    width: 15vw;           /* Equivalente a 60px en 400px */
+    height: 15vw;
+    font-size: 7.2vw;      /* Equivalente a 1.8rem en 400px */
+    border-radius: 4.5vw;  /* Curvatura proporcional */
+}
+
+/* Textos de las tarjetas de Home */
+.folder-card {
+    padding: 4vw;          /* Ajuste interno proporcional */
+}
+.folder-card h6 {
+    font-size: 3.8vw !important; /* Equivalente a ~15px en 400px */
+}
+.folder-card small {
+    font-size: 3vw !important;   /* Equivalente a ~12px en 400px */
+}
+
+
 }
